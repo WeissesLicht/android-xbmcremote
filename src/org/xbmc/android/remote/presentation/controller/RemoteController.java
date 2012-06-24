@@ -28,6 +28,7 @@ import org.xbmc.android.remote.R;
 import org.xbmc.android.remote.business.ManagerFactory;
 import org.xbmc.android.remote.presentation.activity.GestureRemoteActivity;
 import org.xbmc.android.remote.presentation.activity.NowPlayingActivity;
+import org.xbmc.android.remote.presentation.activity.VoiceRecognitionActivity;
 import org.xbmc.android.widget.gestureremote.IGestureListener;
 import org.xbmc.api.business.DataResponse;
 import org.xbmc.api.business.IControlManager;
@@ -69,6 +70,7 @@ public class RemoteController extends AbstractController implements INotifiableC
 //	private static final int MENU_SWITCH_MOUSE = 404;
 	private static final int MENU_SWITCH_GESTURE = 405;
 	private static final int MENU_ENTER_TEXT = 406;
+	private static final int MENU_VOICE_RECOGNITION = 407; //GP
 
 	public static final int DIALOG_SENDTEXT = 500;
 
@@ -339,6 +341,7 @@ public class RemoteController extends AbstractController implements INotifiableC
 		menu.add(0, MENU_ENTER_TEXT, 0, "Text Entry").setIcon(R.drawable.menu_text_entry);
 		menu.add(0, MENU_XBMC_EXIT, 0, "Exit XBMC").setIcon(R.drawable.menu_xbmc_exit);
 		menu.add(0, MENU_XBMC_S, 0, "Press \"S\"").setIcon(R.drawable.menu_xbmc_s);
+		menu.add(0, MENU_VOICE_RECOGNITION, 0, "Voice Command").setIcon(R.drawable.menu_remote); //gp
 		return true;
 	}
 
@@ -402,6 +405,9 @@ public class RemoteController extends AbstractController implements INotifiableC
 				break;
 			case MENU_ENTER_TEXT:
 				showDialog(DIALOG_SENDTEXT);
+				break;
+			case MENU_VOICE_RECOGNITION:
+				intent = new Intent(mActivity, VoiceRecognitionActivity.class);
 				break;
 		}
 		if (intent != null) {

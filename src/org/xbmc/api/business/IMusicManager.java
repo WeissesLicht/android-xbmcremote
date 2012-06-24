@@ -57,6 +57,12 @@ public interface IMusicManager extends IManager {
 	public ArrayList<Album> getAlbums(final Context context);
 	
 	/**
+	 * SYNCHRONOUSLY gets albums from database by name
+	 * @return All albums in database
+	 */
+	public ArrayList<Album> getAlbums(final String albumname, final Context context);
+	
+	/**
 	 * Gets all albums of an artist from database
 	 * @param response Response object
 	 * @param artist  Artist of the albums
@@ -71,10 +77,22 @@ public interface IMusicManager extends IManager {
 	public void getAlbums(final DataResponse<ArrayList<Album>> response, final Genre genre, final Context context);
 	
 	/**
+	 * SYNCHRONOUSLY gets songs from database depending on album
+	 * @return All songs for an album in database
+	 */
+	public ArrayList<Song> getSongs(final Album album, final Context context);
+	/**
+	 * SYNCHRONOUSLY gets songs from database depending on the name
+	 * @return All songs for an album in database
+	 */
+	public ArrayList<Song> getSongs(final String songname, final Context context);
+	
+	/**
 	 * Gets all songs of an album from database
 	 * @param response Response object
 	 * @param album Album
 	 */
+	
 	public void getSongs(final DataResponse<ArrayList<Song>> response, final Album album, final Context context);
 	
 	/**

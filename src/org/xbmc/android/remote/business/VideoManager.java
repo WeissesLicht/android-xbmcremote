@@ -81,7 +81,19 @@ public class VideoManager extends AbstractManager implements IVideoManager, ISor
 		}
 		return null;
 	}
-	
+
+	/**
+	 * SYNCHRONOUSLY gets movies from database by name
+	 * @return All movies in database
+	 */
+	public ArrayList<Movie> getMovies(final String moviename, final Context context) {
+		try {
+			return video(context).getMovies(VideoManager.this, moviename, getSortBy(SortType.TITLE), getSortOrder(), getHideWatched(context));
+		} catch (WifiStateException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
 	/**
 	 * SYNCHRONOUSLY gets movies from database with offset
 	 * @return Movies in database with offset

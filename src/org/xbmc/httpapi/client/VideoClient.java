@@ -89,7 +89,26 @@ public class VideoClient extends Client implements IVideoClient {
 		sb.append(moviesOrderBy(sortBy, sortOrder));
 		return parseMovies(mConnection.query("QueryVideoDatabase", sb.toString(), manager));
 	}
-	
+	/**
+	 * Gets movies by name from database
+	 * @param moviename Movie Title
+	 * @param sortBy Sort field, see SortType.* 
+	 * @param sortOrder Sort order, must be either SortType.ASC or SortType.DESC.
+	 * @return All movies
+	 */
+	public ArrayList<Movie> getMovies(INotifiableManager manager, String moviename, int sortBy, String sortOrder, boolean hideWatched){
+		StringBuilder sb = new StringBuilder();
+		sb.append(SELECT_MOVIES);
+		sb.append(WHERE_MOVIES);
+		sb.append(" WHERE movie.c00= '");
+		sb.append(moviename);
+		sb.append("'");
+		sb.append(" AND movie.idFile=files.idFile AND path.idPath=files.idPath");
+		sb.append(watchedFilter(hideWatched));
+		sb.append(moviesOrderBy(sortBy, sortOrder));
+		return parseMovies(mConnection.query("QueryVideoDatabase", sb.toString(), manager));
+	}
+
 	/**
 	 * Gets movies from database with offset
 	 * @param sortBy Sort field, see SortType.* 

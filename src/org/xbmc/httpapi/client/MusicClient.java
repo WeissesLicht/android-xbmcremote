@@ -332,6 +332,24 @@ public class MusicClient extends Client implements IMusicClient {
 	}
 	
 	/**
+	 * Gets all albums from database by name
+	 * @param sortBy Sort field, see SortType.* 
+	 * @param sortOrder Sort order, must be either SortType.ASC or SortType.DESC.
+	 * @return All albums
+	 */
+	public ArrayList<Album> getAlbums(INotifiableManager manager, String albumname, int sortBy, String sortOrder){
+		StringBuilder sb = new StringBuilder();
+		sb.append("SELECT idAlbum, strAlbum, strArtist, iYear, strThumb");
+		sb.append(" FROM albumview WHERE albumview.strAlbum = '");
+		sb.append(albumname);
+		sb.append("'");
+		
+		return parseAlbums(mConnection.query("QueryMusicDatabase", sb.toString(), manager));
+		
+	}
+
+	
+	/**
 	 * Gets all albums from database
 	 * @param sortBy Sort field, see SortType.* 
 	 * @param sortOrder Sort order, must be either SortType.ASC or SortType.DESC.
@@ -631,6 +649,30 @@ public class MusicClient extends Client implements IMusicClient {
 		sb.append("  )");
 		sb.append(")");
 		return sb;
+	}
+	/**
+	 * Returns the SQL condition that returns all songs matching a specific name.
+	 * @param artist Artist
+	 * @param genre Genre
+	 * @return SQL string
+	 */
+	private StringBuilder getSongsCondition(String songname) {
+		final StringBuilder sb = new StringBuilder();
+		sb.append("lower(strTitle) = \"");
+		sb.append(songname);
+		sb.append("\"");
+		return sb;
+	}
+	/**
+	 * Returns a list containing all songs matching a name. The list is sorted by filename.
+	 * @param songname String
+	 * @param sortBy Sort field, see SortType.* 
+	 * @param sortOrder Sort order, must be either SortType.ASC or SortType.DESC.	 
+	 * @return All tracks of an album
+	 */
+	
+	public ArrayList<Song> getSongs(INotifiableManager manager, String songname, int sortBy, String sortOrder) {
+		return getSongs(manager,getSongsCondition(songname), sortBy, sortOrder);
 	}
 	
 	/**
