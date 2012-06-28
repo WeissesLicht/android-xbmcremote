@@ -340,7 +340,7 @@ public class MusicClient extends Client implements IMusicClient {
 	public ArrayList<Album> getAlbums(INotifiableManager manager, String albumname, int sortBy, String sortOrder){
 		StringBuilder sb = new StringBuilder();
 		sb.append("SELECT idAlbum, strAlbum, strArtist, iYear, strThumb");
-		sb.append(" FROM albumview WHERE albumview.strAlbum = '");
+		sb.append(" FROM albumview WHERE lower(albumview.strAlbum) = '");
 		sb.append(albumname);
 		sb.append("'");
 		

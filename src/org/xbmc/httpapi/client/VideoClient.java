@@ -100,7 +100,7 @@ public class VideoClient extends Client implements IVideoClient {
 		StringBuilder sb = new StringBuilder();
 		sb.append(SELECT_MOVIES);
 		sb.append(WHERE_MOVIES);
-		sb.append(" WHERE movie.c00= '");
+		sb.append(" WHERE lower(movie.c00)= '");
 		sb.append(moviename);
 		sb.append("'");
 		sb.append(" AND movie.idFile=files.idFile AND path.idPath=files.idPath");
