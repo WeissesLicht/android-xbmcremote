@@ -12,6 +12,7 @@ import org.xbmc.android.remote.presentation.activity.NowPlayingActivity;
 import org.xbmc.android.remote.presentation.activity.VoiceRecognitionActivity;
 import org.xbmc.android.remote.presentation.controller.ListController;
 
+import org.xbmc.android.util.NameOptionsSplitter;
 import org.xbmc.android.widget.gestureremote.IGestureListener;
 import org.xbmc.api.business.DataResponse;
 import org.xbmc.api.business.IControlManager;
@@ -335,6 +336,15 @@ public class VoiceRecognitionController extends ListController  implements INoti
 	private boolean runPlayAlbum(String command, String commandParameter, Context context) {
 		 ArrayList<Album> lAlbumList = 
 				 mMusicManager.getAlbums( commandParameter.toLowerCase(), context);
+		 if (lAlbumList.isEmpty()) {
+				//Replace integers with roman numerals and try again.
+				NameOptionsSplitter lNameOptionsSplitter = new NameOptionsSplitter();
+				String commandParameterwithRomanNumerals = lNameOptionsSplitter.replaceIntwithRN(commandParameter);
+				if (commandParameterwithRomanNumerals != null) {
+					lAlbumList = 
+							 mMusicManager.getAlbums(commandParameterwithRomanNumerals.toLowerCase(), context);
+				}
+			}
 		 if (lAlbumList != null) {
 		 for (Album lAlbum : lAlbumList) {
 					mMusicManager.play(new QueryResponse(
@@ -353,6 +363,15 @@ public class VoiceRecognitionController extends ListController  implements INoti
 	private boolean runPlaySong(String command, String commandParameter, Context context) {
 		 ArrayList<Song> lSongList = 
 				 mMusicManager.getSongs( commandParameter.toLowerCase(), context);
+		if (lSongList.isEmpty()) {
+				//Replace integers with roman numerals and try again.
+				NameOptionsSplitter lNameOptionsSplitter = new NameOptionsSplitter();
+				String commandParameterwithRomanNumerals = lNameOptionsSplitter.replaceIntwithRN(commandParameter);
+				if (commandParameterwithRomanNumerals != null) {
+					lSongList = 
+							 mMusicManager.getSongs(commandParameterwithRomanNumerals.toLowerCase(), context);
+				}
+			}
 		 if (lSongList != null) {
 		 for (Song lSong : lSongList) {
 				if (commandParameter.equalsIgnoreCase(lSong.title)) {
@@ -372,6 +391,16 @@ public class VoiceRecognitionController extends ListController  implements INoti
 	private boolean runPlayMovie(String command, String commandParameter, Context context) {
 		ArrayList<Movie> lMovieList = 
 				 mVideoManager.getMovies(commandParameter.toLowerCase(), context);
+		
+		if (lMovieList.isEmpty()) {
+			//Replace integers with roman numerals and try again.
+			NameOptionsSplitter lNameOptionsSplitter = new NameOptionsSplitter();
+			String commandParameterwithRomanNumerals = lNameOptionsSplitter.replaceIntwithRN(commandParameter);
+			if (commandParameterwithRomanNumerals != null) {
+				lMovieList = 
+					 mVideoManager.getMovies(commandParameterwithRomanNumerals.toLowerCase(), context);
+			}
+		}
 		 if (lMovieList != null) {	
 		 for (Movie lMovie : lMovieList) {
 			 mControlManager.playFile(new DataResponse<Boolean>() {
