@@ -124,6 +124,18 @@ public class VideoClient extends Client implements IVideoClient {
 	}
 	
 	/**
+	 * Gets movies by name from database
+	 * @param moviename Movie Title
+	 * @param sortBy Sort field, see SortType.* 
+	 * @param sortOrder Sort order, must be either SortType.ASC or SortType.DESC.
+	 * @return All movies
+	 */
+	public ArrayList<Movie> getMovies(INotifiableManager manager, String moviename, int sortBy, String sortOrder, boolean hideWatched){
+		//TODO Update / check for voicerecognition merge
+		return getMovies(manager, obj().p("filter", obj().p("name", moviename)), sortBy, sortOrder, hideWatched);
+	}
+	
+	/**
 	 * Gets all movies with an actor from database
 	 * @param actor Display only movies with this actor.
 	 * @param sortBy Sort field, see SortType.* 
@@ -375,9 +387,4 @@ public class VideoClient extends Client implements IVideoClient {
 		return mConnection.getString(manager, "Playlist.Remove", obj().p("playlistid", PLAYLIST_ID).p("position", "position")).equals("OK");
 	}
 
-	public ArrayList<Movie> getMovies(INotifiableManager manager,
-			String moviename, int sortBy, String sortOrder, boolean hideWatched) {
-		// TODO Auto-generated method stub
-		return null;
-	}
 }

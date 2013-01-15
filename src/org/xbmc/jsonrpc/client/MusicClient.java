@@ -381,6 +381,7 @@ public class MusicClient extends Client implements IMusicClient {
 	 * @return All albums
 	 */
 	public ArrayList<Album> getAlbums(INotifiableManager manager, String albumname, int sortBy, String sortOrder){
+        //TODO Update for voicerecognition merge
 		return null;
 	}
 	
@@ -537,6 +538,7 @@ public class MusicClient extends Client implements IMusicClient {
 	 */
 	
 	public ArrayList<Song> getSongs(INotifiableManager manager, String songname, int sortBy, String sortOrder) {
+		//TODO Update for voicerecognition merge
 		return null;
 	}
 	/**
