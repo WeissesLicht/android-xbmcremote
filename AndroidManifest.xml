@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android" 
 	package="org.xbmc.android.remote"
-	android:versionName="0.10.8-alpha_tombriden" 
-	android:versionCode="1008" 
+	android:versionName="0.10.9-nifty-tombriden" 
+	android:versionCode="1009" 
 	android:installLocation="auto">
 	
-	<uses-sdk android:minSdkVersion="3" android:targetSdkVersion="10" />
+	<uses-sdk android:minSdkVersion="3" android:targetSdkVersion="18" />
 	
 	<supports-screens
 		android:largeScreens="true"
@@ -62,13 +62,12 @@
 				<action android:name="android.intent.action.VIEW" />
 				<category android:name="android.intent.category.DEFAULT" />
 				<category android:name="android.intent.category.BROWSABLE" />
-				<data android:scheme="http" android:mimeType="image/*"/>
-				<data android:scheme="http" android:mimeType="video/*"/>
-				<data android:scheme="http" android:mimeType="audio/*"/>
-
-				<data android:scheme="http" android:host="youtube.com"/>
-				<data android:scheme="http" android:host="www.youtube.com"/>
-			</intent-filter>
+				    <data android:scheme="http" android:mimeType="image/*"/>
+				    <data android:scheme="http" android:mimeType="video/*"/>
+				    <data android:scheme="http" android:mimeType="audio/*"/>
+				    <data android:scheme="http" android:host="youtube.com"/>
+                    <data android:scheme="http" android:host="www.youtube.com"/>
+            </intent-filter>
 		</activity>
 		
 
