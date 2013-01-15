@@ -403,7 +403,8 @@ public class VoiceRecognitionController extends ListController  implements INoti
 		}
 		 if (lMovieList != null) {	
 		 for (Movie lMovie : lMovieList) {
-			 mControlManager.playFile(new DataResponse<Boolean>() {
+			 //mControlManager.playFile(new DataResponse<Boolean>() {
+			 mControlManager.playUrl(new DataResponse<Boolean>() {
 					public void run() {
 						if (value) {
 							//mActivity.startActivity(new Intent(mActivity, NowPlayingActivity.class));

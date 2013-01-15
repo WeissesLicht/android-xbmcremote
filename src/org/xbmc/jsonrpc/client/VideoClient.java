@@ -374,4 +374,10 @@ public class VideoClient extends Client implements IVideoClient {
 	public boolean removeFromPlaylist(INotifiableManager manager, String path) {
 		return mConnection.getString(manager, "Playlist.Remove", obj().p("playlistid", PLAYLIST_ID).p("position", "position")).equals("OK");
 	}
+
+	public ArrayList<Movie> getMovies(INotifiableManager manager,
+			String moviename, int sortBy, String sortOrder, boolean hideWatched) {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }
