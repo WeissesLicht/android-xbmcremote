@@ -90,6 +90,20 @@ public class MusicManager extends AbstractManager implements IMusicManager, ISor
 	}
 	
 	/**
+	 * SYNCHRONOUSLY gets albums from database by name
+	 * @return All albums in database
+	 */
+	public ArrayList<Album> getAlbums(final String albumname, final Context context){
+		try { //TODO fix this to throw  
+			return music(context).getAlbums(MusicManager.this, albumname, getSortBy(SortType.ALBUM), getSortOrder());
+		} catch (WifiStateException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+	
+	
+	/**
 	 * Gets all albums of an artist from database
 	 * @param response Response object
 	 * @param artist  Artist of the albums
@@ -127,7 +141,31 @@ public class MusicManager extends AbstractManager implements IMusicManager, ISor
 			}
 		});
 	}
+	/**
+	 * SYNCHRONOUSLY gets songs from database depending on the name
+	 * @return All songs for an album in database
+	 */
+	public ArrayList<Song> getSongs(final String songname, final Context context) {
+		try { //TODO fix this to throw 
+			return music(context).getSongs(MusicManager.this,  songname, getSortBy(SortType.TRACK), getSortOrder());
+		} catch (WifiStateException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
 	
+	/**
+	 * SYNCHRONOUSLY gets songs from database depending on album
+	 * @return All songs for an album in database
+	 */
+	public ArrayList<Song> getSongs(final Album album, final Context context) {
+		try { //TODO fix this to throw 
+			return music(context).getSongs(MusicManager.this,  album, getSortBy(SortType.TRACK), getSortOrder());
+		} catch (WifiStateException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
 	/**
 	 * Gets all songs of an album from database
 	 * @param response Response object

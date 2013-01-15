@@ -56,6 +56,12 @@ public interface IVideoManager extends IManager {
 	public ArrayList<Movie> getMovies(final Context context);
 	
 	/**
+	 * SYNCHRONOUSLY gets movies from database by name
+	 * @return All movies in database
+	 */
+	public ArrayList<Movie> getMovies(final String moviename, final Context context);
+	
+	/**
 	 * SYNCHRONOUSLY gets all movies from database
 	 * @return Movies in database with offset
 	 */

@@ -47,7 +47,16 @@ public interface IVideoClient extends IClient {
 	 * @return All movies
 	 */
 	public ArrayList<Movie> getMovies(INotifiableManager manager, int sortBy, String sortOrder, boolean hideWatched);
-	
+
+	/**
+	 * Gets movies by name from database
+	 * @param moviename Movie Title
+	 * @param sortBy Sort field, see SortType.* 
+	 * @param sortOrder Sort order, must be either SortType.ASC or SortType.DESC.
+	 * @return All movies
+	 */
+	public ArrayList<Movie> getMovies(INotifiableManager manager, String moviename, int sortBy, String sortOrder, boolean hideWatched);
+
 	/**
 	 * Gets all movies from database
 	 * @param sortBy Sort field, see SortType.* 

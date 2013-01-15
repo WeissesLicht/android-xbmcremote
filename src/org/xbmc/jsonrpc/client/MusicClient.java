@@ -374,7 +374,16 @@ public class MusicClient extends Client implements IMusicClient {
 		return albums;
 	}
 
-
+	/**
+	 * Gets all albums from database by name
+	 * @param sortBy Sort field, see SortType.* 
+	 * @param sortOrder Sort order, must be either SortType.ASC or SortType.DESC.
+	 * @return All albums
+	 */
+	public ArrayList<Album> getAlbums(INotifiableManager manager, String albumname, int sortBy, String sortOrder){
+		return null;
+	}
+	
 	/**
 	 * Gets all albums of an artist from database
 	 * @param artist Artist
@@ -519,6 +528,17 @@ public class MusicClient extends Client implements IMusicClient {
 	}
 	
 
+	/**
+	 * Returns a list containing all songs matching a name. The list is sorted by filename.
+	 * @param songname String
+	 * @param sortBy Sort field, see SortType.* 
+	 * @param sortOrder Sort order, must be either SortType.ASC or SortType.DESC.	 
+	 * @return All tracks of an album
+	 */
+	
+	public ArrayList<Song> getSongs(INotifiableManager manager, String songname, int sortBy, String sortOrder) {
+		return null;
+	}
 	/**
 	 * Returns a list containing all tracks of an album. The list is sorted by filename.
 	 * @param album Album

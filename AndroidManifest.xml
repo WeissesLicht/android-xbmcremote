@@ -107,6 +107,7 @@
         </receiver>
 		
 		<provider android:name=".business.provider.HostProvider" android:authorities="org.xbmc.android.provider.remote" />
+		<activity android:name=".presentation.activity.VoiceRecognitionActivity" android:theme="@style/Theme.NoBackground.NoTitleBar"></activity>
 		
 	</application>
 </manifest>
