@@ -199,10 +199,11 @@ public class VoiceRecognitionController extends ListController  implements INoti
 		Log.d(TAG, "parseAndAct matches: "+pMatches);
 		for ( String lMatch : pMatches)  {
 			lMatch.toLowerCase();
+			Log.d(TAG, "parseAndAct lMatch: "+lMatch);
 			for (int i = 0; i < supportedCommands.size(); i++ ) {
 				if (lMatch.startsWith(supportedCommands.get(i))) {
 					if (supportedCommands.get(i).equalsIgnoreCase(COMMAND_PLAY_SONG)){
-						
+						Log.d(TAG, "parseAndAct equals PLAY_SONG");
 						if (lMatch.length() > supportedCommands.get(i).length() ) {
 						lMatch = lMatch.substring(supportedCommands.get(i).length()+ 1);
 						lMatch = lMatch.trim();
@@ -210,6 +211,7 @@ public class VoiceRecognitionController extends ListController  implements INoti
 						runPlaySong(supportedCommands.get(i), lMatch, context);	
 						}
 					} else if (supportedCommands.get(i).equalsIgnoreCase(COMMAND_PLAY_ALBUM)) {
+						Log.d(TAG, "parseAndAct equals PLAY_ALBUM");
 							if (lMatch.length() > supportedCommands.get(i).length() ) {
 								lMatch = lMatch.substring(supportedCommands.get(i).length()+ 1);
 								lMatch = lMatch.trim();
@@ -219,6 +221,7 @@ public class VoiceRecognitionController extends ListController  implements INoti
 					
 							}
 					} else if (supportedCommands.get(i).equalsIgnoreCase(COMMAND_PLAY_MOVIE)) {
+						Log.d(TAG, "parseAndAct equals PLAY_MOVIE");
 						if (lMatch.length() > supportedCommands.get(i).length() ) {
 							lMatch = lMatch.substring(supportedCommands.get(i).length()+ 1);
 							lMatch = lMatch.trim();
@@ -229,6 +232,7 @@ public class VoiceRecognitionController extends ListController  implements INoti
 						}
 					}
 						else {
+							Log.d(TAG, "parseAndAct no match");
 						runSimpleCommand(supportedCommands.get(i));
 						if (lMatch.length() > supportedCommands.get(i).length()  ){
 						lMatch = lMatch.substring(supportedCommands.get(i).length()+ 1);

@@ -61,13 +61,13 @@ public class VoiceRecognitionActivity extends Activity {
         	
         }
         showVoiceInstructions(mVoiceRecognitionController);
-        //Test
+        /*//Test
         String match = "play movie men";
        //String match = "pause";
        ArrayList<String> matches = new ArrayList<String>();
         matches.add(match);
        Log.i("VoiceRecognitionActivity", match);
-        mVoiceRecognitionController.parseAndAct(matches, this.getApplicationContext()); 
+        mVoiceRecognitionController.parseAndAct(matches, this.getApplicationContext()); */
     }
     
     private void showVoiceInstructions(VoiceRecognitionController controller) {
