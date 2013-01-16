@@ -59,6 +59,8 @@ public class VoiceRecognitionController extends ListController  implements INoti
 	/**
 	 * 
 	 */
+	public static final String TAG = "VoiceRecognitionController";
+	
 	private static final long serialVersionUID = 1L;
 	IEventClientManager mEventClientManager;
 	IInfoManager mInfoManager;
@@ -123,7 +125,6 @@ public class VoiceRecognitionController extends ListController  implements INoti
 	public static final int COMMAND_IMAGES_ID = 18;
 	public static final int COMMAND_TV_ID = 19;
 	public static final int COMMAND_PLAY_SONG_ID = 20;
-	
 	
 	final SharedPreferences prefs;
 
@@ -195,7 +196,7 @@ public class VoiceRecognitionController extends ListController  implements INoti
 	}
 
 	public boolean parseAndAct(ArrayList<String> pMatches, Context context){
-
+		Log.d(TAG, "parseAndAct matches: "+pMatches);
 		for ( String lMatch : pMatches)  {
 			lMatch.toLowerCase();
 			for (int i = 0; i < supportedCommands.size(); i++ ) {

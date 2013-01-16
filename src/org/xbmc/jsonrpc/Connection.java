@@ -280,6 +280,7 @@ public class Connection {
 			jg.setCodec(mapper);
 
 			// POST data
+			Log.d(TAG, "JSON Query data: "+data);
 			jg.writeTree(data);
 			jg.flush();
 			
@@ -316,6 +317,7 @@ public class Connection {
 	public JsonNode getJson(INotifiableManager manager, String method, JsonNode parameters) {
 		try {
 			final JsonNode response = query(method, parameters, manager);
+			Log.d(TAG, "response: "+response);
 			final JsonNode result = response.get(RESULT_FIELD);
 			if (result == null) {
 				if (response.get(ERROR_FIELD) == null) {

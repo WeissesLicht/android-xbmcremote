@@ -38,6 +38,7 @@ import org.xbmc.api.type.MediaType;
 import org.xbmc.api.type.SortType;
 import org.xbmc.jsonrpc.Connection;
 import android.graphics.Bitmap;
+import android.util.Log;
 
 /**
  * Takes care of everything related to the video database.
@@ -79,9 +80,7 @@ public class VideoClient extends Client implements IVideoClient {
 	}
 	
 	public ArrayList<Movie> getMovies(INotifiableManager manager, ObjNode obj, int sortBy, String sortOrder, boolean hideWatched) {
-		
 		obj = sort(obj.p(PARAM_PROPERTIES, arr().add("director").add("file").add("genre").add("imdbnumber").add("playcount").add("rating").add("runtime").add("thumbnail").add("year")), sortBy, sortOrder);
-		
 		final ArrayList<Movie> movies = new ArrayList<Movie>();
 		final JsonNode result = mConnection.getJson(manager, "VideoLibrary.GetMovies", obj);
 		if(result.size() > 0){
@@ -119,7 +118,6 @@ public class VideoClient extends Client implements IVideoClient {
 	 * @return Movies with offset
 	 */
 	public ArrayList<Movie> getMovies(INotifiableManager manager, int sortBy, String sortOrder, int offset, boolean hideWatched) {
-		
 		return getMovies(manager, obj().p("limits", obj().p("start", 0)), sortBy, sortOrder, hideWatched);
 	}
 	
@@ -132,7 +130,7 @@ public class VideoClient extends Client implements IVideoClient {
 	 */
 	public ArrayList<Movie> getMovies(INotifiableManager manager, String moviename, int sortBy, String sortOrder, boolean hideWatched){
 		//TODO Update / check for voicerecognition merge
-		return getMovies(manager, obj().p("filter", obj().p("name", moviename)), sortBy, sortOrder, hideWatched);
+		return getMovies(manager, obj().p("filter", obj().p("field", "title").p("operator","contains").p("value", moviename)), sortBy, sortOrder, hideWatched);
 	}
 	
 	/**
