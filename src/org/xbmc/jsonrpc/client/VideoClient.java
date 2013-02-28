@@ -22,6 +22,8 @@
 package org.xbmc.jsonrpc.client;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Iterator;
 
 import org.codehaus.jackson.JsonNode;
@@ -78,7 +80,13 @@ public class VideoClient extends Client implements IVideoClient {
 	public ArrayList<Movie> getMovies(INotifiableManager manager, int sortBy, String sortOrder, boolean hideWatched) {
 		return getMovies(manager, obj(), sortBy, sortOrder, hideWatched);
 	}
-	
+
+	/**
+	 * Gets all movies from database
+	 * @param sortBy Sort field, see SortType.* 
+	 * @param sortOrder Sort order, must be either SortType.ASC or SortType.DESC.
+	 * @return All movies
+	 */
 	public ArrayList<Movie> getMovies(INotifiableManager manager, ObjNode obj, int sortBy, String sortOrder, boolean hideWatched) {
 		obj = sort(obj.p(PARAM_PROPERTIES, arr().add("director").add("file").add("genre").add("imdbnumber").add("playcount").add("rating").add("runtime").add("thumbnail").add("year")), sortBy, sortOrder);
 		final ArrayList<Movie> movies = new ArrayList<Movie>();
@@ -118,6 +126,7 @@ public class VideoClient extends Client implements IVideoClient {
 	 * @return Movies with offset
 	 */
 	public ArrayList<Movie> getMovies(INotifiableManager manager, int sortBy, String sortOrder, int offset, boolean hideWatched) {
+		//TODO fix offset?
 		return getMovies(manager, obj().p("limits", obj().p("start", 0)), sortBy, sortOrder, hideWatched);
 	}
 	
@@ -129,7 +138,7 @@ public class VideoClient extends Client implements IVideoClient {
 	 * @return All movies
 	 */
 	public ArrayList<Movie> getMovies(INotifiableManager manager, String moviename, int sortBy, String sortOrder, boolean hideWatched){
-		//TODO Update / check for voicerecognition merge
+		Log.d("VideoClient", "Get movies title contains: "+moviename);
 		return getMovies(manager, obj().p("filter", obj().p("field", "title").p("operator","contains").p("value", moviename)), sortBy, sortOrder, hideWatched);
 	}
 	
@@ -152,8 +161,9 @@ public class VideoClient extends Client implements IVideoClient {
 	 * @return All movies of a genre
 	 */
 	public ArrayList<Movie> getMovies(INotifiableManager manager, Genre genre, int sortBy, String sortOrder, boolean hideWatched) {
-		
-		return getMovies(manager, obj().p("filter", obj().p("genreid", genre.id)), sortBy, sortOrder, hideWatched);
+		Log.d("getMovies", "All movies of a genre");
+		ArrayList<Movie> movies = getMovies(manager, obj().p("filter", obj().p("genreid", genre.id)), sortBy, sortOrder, hideWatched);
+		return movies;
 	}
 	
 	/**
@@ -199,7 +209,8 @@ public class VideoClient extends Client implements IVideoClient {
 	 * @return All actors
 	 */
 	public ArrayList<Actor> getActors(INotifiableManager manager) {
-		//TODO
+		//TODO getActors
+		Log.d(TAG, "TODO implement generic getActors");
 		return new ArrayList<Actor>();
 	}
 	
@@ -208,16 +219,78 @@ public class VideoClient extends Client implements IVideoClient {
 	 * @return All movie actors
 	 */
 	public ArrayList<Actor> getMovieActors(INotifiableManager manager) {
-		//TODO
-		return new ArrayList<Actor>();
+		ObjNode obj = sort(obj().p(PARAM_PROPERTIES, arr().add("cast")), SortType.TITLE, "descending");
+		final ArrayList<Actor> actors = new ArrayList<Actor>();
+		final JsonNode result = mConnection.getJson(manager, "VideoLibrary.GetMovies", obj);
+		if(result.size() > 0){
+			final JsonNode jsonMovies = result.get("movies");
+			//Iterate through each movie
+			for (Iterator<JsonNode> i = jsonMovies.getElements(); i.hasNext();) {
+				JsonNode jsonMovie = (JsonNode)i.next();
+				//Get the movie's cast
+				JsonNode jsonCast = jsonMovie.get("cast");
+				//Iterate through each actor in the cast
+				for (Iterator<JsonNode> j = jsonCast.getElements(); j.hasNext();) {
+					JsonNode jsonActor = (JsonNode)j.next();
+					//Add to list of actors
+					//TODO possibly remove duplicates
+					actors.add(new Actor(
+						j.hashCode(),
+						getString(jsonActor, "name"),
+						getString(jsonActor, "thumbnail"),
+						getString(jsonActor, "role")
+					));
+				}
+
+			}
+		}
+		//Sort actors list
+		Collections.sort(actors, new Comparator<Actor>(){
+			  public int compare(Actor a1, Actor a2) {
+			    return a1.name.compareToIgnoreCase(a2.name);
+			  }
+			});
+		return actors;
 	}
 	
 	/**
-	 * Gets all movie actors from database
-	 * @return All movie actors
+	 * Gets all TvShow actors from database
+	 * @return All TV Show actors
 	 */
 	public ArrayList<Actor> getTvShowActors(INotifiableManager manager) {
-		return new ArrayList<Actor>();//parseActors(mConnection.query("QueryVideoDatabase", sb.toString(), manager));
+		//TODO getTvShowActors
+		ObjNode obj = sort(obj().p(PARAM_PROPERTIES, arr().add("cast")), SortType.TITLE, "descending");
+		final ArrayList<Actor> actors = new ArrayList<Actor>();
+		final JsonNode result = mConnection.getJson(manager, "VideoLibrary.GetTVShows", obj);
+		if(result.size() > 0){
+			final JsonNode jsonTvShows = result.get("tvshows");
+			//Iterate through each show
+			for (Iterator<JsonNode> i = jsonTvShows.getElements(); i.hasNext();) {
+				JsonNode jsonTvShow = (JsonNode)i.next();
+				//Get the movie's cast
+				JsonNode jsonCast = jsonTvShow.get("cast");
+				//Iterate through each actor in the cast
+				for (Iterator<JsonNode> j = jsonCast.getElements(); j.hasNext();) {
+					JsonNode jsonActor = (JsonNode)j.next();
+					//Add to list of actors
+					//TODO possibly remove duplicates
+					actors.add(new Actor(
+						j.hashCode(),
+						getString(jsonActor, "name"),
+						getString(jsonActor, "thumbnail"),
+						getString(jsonActor, "role")
+					));
+				}
+
+			}
+		}
+		//Sort actors list
+		Collections.sort(actors, new Comparator<Actor>(){
+			  public int compare(Actor a1, Actor a2) {
+			    return a1.name.compareToIgnoreCase(a2.name);
+			  }
+			});
+		return actors;
 	}
 	
 	/**
