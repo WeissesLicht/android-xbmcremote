@@ -46,4 +46,6 @@ Have fun.</string>
 	<string name="added_host">Successfully added \"%s\"</string>
 	<string name="barcode_scanner_required">You need to install the Barcode Scanner app to use this feature. Would you like to install it now?</string>
 	<string name="make_sure_XBMC_webserver_is_enabled_and_XBMC_is_running">Make sure XBMC webserver is enabled and XBMC is running</string>
+	<string name="click_to_speak_command">Tap and Speak</string>
+	<string name="vox_supported_commands">Supported commands are:</string>
 </resources>

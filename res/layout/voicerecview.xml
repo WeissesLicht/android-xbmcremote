@@ -1,31 +1,37 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical" >
+    android:orientation="vertical" 
+    android:fadingEdge="none" >
+    
+	<include layout="@layout/titlebar" />
+	
+<LinearLayout
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:layout_alignParentBottom="true" 
+    >
+    
+   <ListView
+       android:id="@+id/voxRecResultsList"
+       android:layout_width="match_parent"
+       android:layout_height="match_parent"
+        />
 
     <TextView
-        android:id="@+id/voxRecIntructionsView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Click the button and Speak your command. Supported commands are: " />
-
-    <Button
+          android:id="@+id/voxRecResultsListEmpty"
+          android:layout_width="match_parent"
+          android:layout_height="match_parent"
+          android:text="@string/vox_supported_commands" />
+          
+    <ImageButton
         android:id="@+id/voxRecButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Click Me." android:onClick="speakButtonClicked"/>
-
-    <TextView
-        android:id="@+id/voxRecExplanation"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="A list of words I think you said will be shown below, and if one matches a command, that command will be executed." />
-
-    <ListView
-        android:id="@+id/voxRecResultsList"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" >
-    </ListView>
-
+        android:layout_height="wrap_content"
+        android:contentDescription="@string/click_to_speak_command"
+        android:onClick="speakButtonClicked"
+        android:src="@android:drawable/ic_btn_speak_now" />
 </LinearLayout>
+</RelativeLayout>

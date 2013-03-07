@@ -1,22 +1,11 @@
 package org.xbmc.android.remote.presentation.activity;
 
 import org.xbmc.android.remote.R;
-import org.xbmc.android.remote.business.ManagerFactory;
-import org.xbmc.android.remote.presentation.controller.NowPlayingController;
-import org.xbmc.android.remote.presentation.controller.RemoteController;
 import org.xbmc.android.remote.presentation.controller.VoiceRecognitionController;
-import org.xbmc.android.remote.presentation.widget.JewelView;
-import org.xbmc.android.util.KeyTracker;
-import org.xbmc.android.util.KeyTracker.Stage;
-import org.xbmc.android.util.OnLongPressBackKeyTracker;
 import org.xbmc.api.business.IEventClientManager;
-import org.xbmc.api.object.Song;
-import org.xbmc.api.type.ThumbSize;
-import org.xbmc.eventclient.ButtonCodes;
 
 import android.app.Activity;
 import android.os.Bundle;
-import android.os.Handler;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
@@ -24,9 +13,11 @@ import android.speech.RecognizerIntent;
 import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
+import android.widget.FrameLayout;
+import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,8 +25,9 @@ import java.util.List;
 
 public class VoiceRecognitionActivity extends Activity {
 	private static final int REQUEST_CODE = 1234;
+	private static final String TAG = "VoiceRecognitionActivity";
 	private ListView voxRecResultsList;
-	private TextView voxRecIntructionsView;
+	private TextView emptyList;
 	IEventClientManager mEventClientManager;
 	private VoiceRecognitionController mVoiceRecognitionController;
 	
@@ -43,43 +35,53 @@ public class VoiceRecognitionActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.voicerecview);
         mVoiceRecognitionController = new VoiceRecognitionController(this, getApplicationContext());
-        //mEventClientManager = ManagerFactory.getEventClientManager(this);
-        Button speakButton = (Button) findViewById(R.id.voxRecButton);
-        
+
+        // remove nasty top fading edge
+		FrameLayout topFrame = (FrameLayout)findViewById(android.R.id.content);
+		topFrame.setForeground(null);
+		
+		// Set title
+		TextView title = (TextView)findViewById(R.id.titlebar_text);
+		title.setText("XBMC Remote Voice Control");
+		
+		
+        ImageButton speakButton = (ImageButton) findViewById(R.id.voxRecButton);
         voxRecResultsList = (ListView) findViewById(R.id.voxRecResultsList);
-        voxRecIntructionsView = (TextView) findViewById(R.id.voxRecIntructionsView);
+        voxRecResultsList.setEmptyView(findViewById(R.id.voxRecResultsListEmpty));
         
         // Disable Button if no recognition service is present
         PackageManager pm = getPackageManager();
-        List<ResolveInfo> activities = pm.queryIntentActivities(
-                new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH), 0);
-        if (activities.size() == 0)
-        {   speakButton.setEnabled(false);
-        	speakButton.setText("Recognizer not present");
+        List<ResolveInfo> activities = pm.queryIntentActivities(new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH), 0);
         
-        	//Disable if no recognition service
-        	
+        //Check if recognition service is available
+        if (activities.size() == 0)
+        {   
+        	//Disable button if no recognition service
+        	speakButton.setEnabled(false);
+        	Toast.makeText(getApplicationContext(), "Speech recognizer not present", Toast.LENGTH_SHORT).show();        	
         }
+        
         showVoiceInstructions(mVoiceRecognitionController);
-        /*//Test
-        String match = "play movie men";
-       //String match = "pause";
-       ArrayList<String> matches = new ArrayList<String>();
-        matches.add(match);
-       Log.i("VoiceRecognitionActivity", match);
-        mVoiceRecognitionController.parseAndAct(matches, this.getApplicationContext()); */
+
     }
     
     private void showVoiceInstructions(VoiceRecognitionController controller) {
-    	voxRecIntructionsView.append(controller.buildVoiceInstructionList());
-    	
-    	
+    	emptyList = (TextView) findViewById(R.id.voxRecResultsListEmpty);
+    	String preface = getString(R.string.vox_supported_commands);
+    	String instructions = controller.buildVoiceInstructionList();
+    	emptyList.setText(preface + "\n" + instructions);
     }
+    
     /**
      * Handle the action of the button being clicked
      */
     public void speakButtonClicked(View v)
     {
+    	Log.d(TAG, "speakButtonClicked...");
+    	emptyList.setText("");
+    	voxRecResultsList.setAdapter(new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, new ArrayList<String>()));
+    	emptyList.invalidate();
+    	voxRecResultsList.invalidate();
         startVoiceRecognitionActivity();
     }
  
@@ -104,10 +106,9 @@ public class VoiceRecognitionActivity extends Activity {
         if (requestCode == REQUEST_CODE && resultCode == RESULT_OK)
         {
             // Populate the wordsList with the String values the recognition engine thought it heard
-            ArrayList<String> matches = data.getStringArrayListExtra(
-                    RecognizerIntent.EXTRA_RESULTS);
-            voxRecResultsList.setAdapter(new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1,
-                    matches));
+            ArrayList<String> matches = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
+            Log.d(TAG, "Found matches:" + matches.toString());
+            voxRecResultsList.setAdapter(new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, matches));
             mVoiceRecognitionController.parseAndAct(matches, this.getApplicationContext());
         }
         super.onActivityResult(requestCode, resultCode, data);
