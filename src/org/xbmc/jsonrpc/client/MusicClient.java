@@ -23,6 +23,7 @@ package org.xbmc.jsonrpc.client;
 
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.Locale;
 
 import org.codehaus.jackson.JsonNode;
 import org.xbmc.api.business.INotifiableManager;
@@ -41,6 +42,7 @@ import org.xbmc.api.type.SortType;
 import org.xbmc.jsonrpc.Connection;
 
 import android.graphics.Bitmap;
+import android.util.Log;
 
 /**
  * Takes care of every music related stuff, notably the music database.
@@ -170,7 +172,7 @@ public class MusicClient extends Client implements IMusicClient {
 		JsonNode playlistitems = mConnection.getJson(manager, "Playlist.GetItems", obj().p("playlistid", PLAYLIST_ID).p(PARAM_PROPERTIES, arr().add("position").add("file")));
 		for (Iterator<JsonNode> i = playlistitems.getElements(); i.hasNext();) {
 			JsonNode jsonItem = (JsonNode)i.next();
-			if(getString(jsonItem,"file").toLowerCase().equals(path.toLowerCase()))
+			if(getString(jsonItem,"file").toLowerCase(Locale.US).equals(path.toLowerCase(Locale.US)))
 				return mConnection.getString(manager, "Playlist.Remove", obj().p("playlistid", PLAYLIST_ID).p("position", getInt(jsonItem,"position"))).equals("OK");
 		}
 		
@@ -340,9 +342,10 @@ public class MusicClient extends Client implements IMusicClient {
 	private ArrayList<Album> getAlbums(INotifiableManager manager, ObjNode obj, int sortBy, String sortOrder) {
 		
 		obj = sort(obj.p(PARAM_PROPERTIES, arr().add("artist").add("year").add("thumbnail")), sortBy, sortOrder);
-		
+		Log.d(TAG, "getAlbums with obj: "+obj.toString());
 		final ArrayList<Album> albums = new ArrayList<Album>();
 		final JsonNode result = mConnection.getJson(manager, "AudioLibrary.GetAlbums", obj);
+		Log.d(TAG, "got result: "+ result.toString());
 		if(result.size() > 0){
 			final JsonNode jsonAlbums = result.get("albums");
 			for (Iterator<JsonNode> i = jsonAlbums.getElements(); i.hasNext();) {
@@ -381,8 +384,28 @@ public class MusicClient extends Client implements IMusicClient {
 	 * @return All albums
 	 */
 	public ArrayList<Album> getAlbums(INotifiableManager manager, String albumname, int sortBy, String sortOrder){
-        //TODO Update for voicerecognition merge
-		return null;
+        Log.d(TAG, "getAlbums containing albumname:" + albumname);
+        //Looks like we can't filter on label yet?
+        //Get all albums
+        ArrayList<Album> allAlbums = getAlbums(manager, obj(), sortBy, sortOrder);
+        Log.d(TAG, "got Albums: "+allAlbums.toString());
+        //Iterate and return all albums that match filter
+        //TODO
+        ArrayList<Album> matchingAlbums = new ArrayList<Album>();
+		for (Iterator<Album> i = allAlbums.iterator(); i.hasNext();) {
+			//Log.d(TAG, "Got iterator");
+			Album aAlbum = (Album)i.next();
+			//Log.d(TAG, "Got album:" + aAlbum.toString());
+			String label = aAlbum.getShortName();
+			//Log.d(TAG, "Got label:" + label);
+			if (label.toLowerCase(Locale.US).contains(albumname) )
+			{
+				Log.d(TAG, "matched album: "+aAlbum.toString());
+				matchingAlbums.add(aAlbum);
+			}
+		}
+		Log.d(TAG, "matching albums: "+ matchingAlbums.toString());
+		return matchingAlbums;
 	}
 	
 	/**
@@ -500,13 +523,15 @@ public class MusicClient extends Client implements IMusicClient {
 	
 	/**
 	 * Returns a list containing tracks of a certain condition.
-	 * @param sqlCondition SQL condition which tracks to return
+	 * @param ObjNode obj condition which tracks to return
 	 * @return Found tracks
 	 **/
 	private ArrayList<Song> getSongs(INotifiableManager manager, ObjNode obj) {
+		Log.d(TAG, "getSongs main function");
 		final ArrayList<Song> songs = new ArrayList<Song>();
 		final JsonNode result = mConnection.getJson(manager, "AudioLibrary.GetSongs", obj);
 		final JsonNode jsonAlbums = result.get("songs");
+		Log.d(TAG, "Got songs:" + jsonAlbums.toString());
 		for (Iterator<JsonNode> i = jsonAlbums.getElements(); i.hasNext();) {
 			JsonNode jsonSong = (JsonNode)i.next();
 			songs.add(new Song(
@@ -536,11 +561,12 @@ public class MusicClient extends Client implements IMusicClient {
 	 * @param sortOrder Sort order, must be either SortType.ASC or SortType.DESC.	 
 	 * @return All tracks of an album
 	 */
-	
 	public ArrayList<Song> getSongs(INotifiableManager manager, String songname, int sortBy, String sortOrder) {
-		//TODO Update for voicerecognition merge
-		return null;
+		Log.d(TAG, "getSongs with songname: "+songname);
+		return getSongs(manager, obj().p("filter", obj().p("field", "title").p("operator","contains").p("value", songname)), sortBy, sortOrder);
 	}
+	
+	
 	/**
 	 * Returns a list containing all tracks of an album. The list is sorted by filename.
 	 * @param album Album
@@ -619,14 +645,11 @@ public class MusicClient extends Client implements IMusicClient {
 		ArrayList<Artist> artists = getArtists(manager, sort(obj(), SortType.ARTIST, "ascending"), true);
 		ArrayList<Integer> ids = new ArrayList<Integer>();
 		for(Artist artist : artists){
-			if(artist.name.toLowerCase().equals("various artists") || artist.name.toLowerCase().equals("v.a.") || artist.name.toLowerCase().equals("va"))
+			if(artist.name.toLowerCase(Locale.US).equals("various artists") || artist.name.toLowerCase(Locale.US).equals("v.a.") || artist.name.toLowerCase(Locale.US).equals("va"))
 				ids.add(artist.id);
 		}
-		
 		return ids;
-		
 	}
-	
 			
 	static ICurrentlyPlaying getCurrentlyPlaying(final JsonNode player, final JsonNode item) {
 		return new IControlClient.ICurrentlyPlaying() {

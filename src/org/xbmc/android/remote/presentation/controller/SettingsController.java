@@ -120,8 +120,10 @@ public class SettingsController extends AbstractController implements INotifiabl
 	public void updateSummaries() {
 		PreferenceScreen ps = mPreferenceActivity.getPreferenceScreen();
 		for (String key : ps.getSharedPreferences().getAll().keySet()) {
+			Log.d(TAG, key.toString());
 			Preference pref = ps.findPreference(key);
 			if (pref != null && pref.getSummary() != null) {
+				Log.d(TAG, pref.toString());
 				String summary = pref.getSummary().toString();
 				if (summary.contains(SettingsActivity.SUMMARY_VALUE_PLACEHOLDER)) {
 					pref.setSummary(summary.replaceAll(SettingsActivity.SUMMARY_VALUE_PLACEHOLDER, ps.getSharedPreferences().getString(key, "<not set>")));
@@ -134,7 +136,7 @@ public class SettingsController extends AbstractController implements INotifiabl
 	 * Used in order to replace the %value% placeholders with real values.
 	 */
 	public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-		Log.i("SettingsActivity", "onSharedPreferenceChanged(" + key + ")");
+		Log.i(TAG, "onSharedPreferenceChanged(" + key + ")");
 		Preference pref = mPreferenceActivity.getPreferenceScreen().findPreference(key);
 		String origSummary = mSummaries.get(key);
 		if (origSummary != null && origSummary.contains(SettingsActivity.SUMMARY_VALUE_PLACEHOLDER)) {

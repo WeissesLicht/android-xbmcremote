@@ -38,6 +38,7 @@ import org.xbmc.android.remote.presentation.activity.MusicLibraryActivity;
 import org.xbmc.android.remote.presentation.activity.NowPlayingActivity;
 import org.xbmc.android.remote.presentation.activity.RemoteActivity;
 import org.xbmc.android.remote.presentation.activity.TvShowLibraryActivity;
+import org.xbmc.android.remote.presentation.activity.VoiceRecognitionActivity;
 import org.xbmc.android.remote.presentation.notification.NowPlayingNotificationManager;
 import org.xbmc.android.util.ClientFactory;
 import org.xbmc.android.util.ConnectionFactory;
@@ -106,6 +107,7 @@ public class HomeController extends AbstractController implements INotifiableCon
 	private static final int HOME_ACTION_WOL = 6;
 	private static final int HOME_ACTION_TVSHOWS = 7;
 	private static final int HOME_ACTION_POWERDOWN = 8;
+	private static final int HOME_ACTION_VOICECONTROL = 9;
 	
 	private IInfoManager mInfoManager;
 	
@@ -222,6 +224,7 @@ public class HomeController extends AbstractController implements INotifiableCon
 
 		final ArrayList<HomeItem> homeItems = new ArrayList<HomeItem>();
 		final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(mActivity.getApplicationContext());
+		//Show music if required
 		if (prefs.getBoolean("setting_show_home_music", true))
 			homeItems.add(new HomeItem(HOME_ACTION_MUSIC, R.drawable.icon_home_music, "Music", "Listen to"));
 		if (prefs.getBoolean("setting_show_home_movies", true))
@@ -234,6 +237,10 @@ public class HomeController extends AbstractController implements INotifiableCon
 		prefs.registerOnSharedPreferenceChangeListener(this);
 		homeItems.add(new HomeItem(HOME_ACTION_NOWPLAYING, R.drawable.icon_home_playing, "Now Playing", "See what's"));
 		homeItems.add(remote);
+		//Show Voice Control option if required
+		if (prefs.getBoolean("setting_show_home_voicecontrol", true))
+			homeItems.add(new HomeItem(HOME_ACTION_VOICECONTROL, R.drawable.icon_home_voice, "Voice", "Control XBMC with your"));
+		//Show Power Down option if required
 		if (prefs.getBoolean("setting_show_home_powerdown", false))
 			homeItems.add(new HomeItem(HOME_ACTION_POWERDOWN, R.drawable.icon_home_power, "Power Off", "Turn your XBMC off"));
 		
@@ -320,6 +327,10 @@ public class HomeController extends AbstractController implements INotifiableCon
 					case HOME_ACTION_POWERDOWN:
 						PowerDown powerdown = new PowerDown();
 						powerdown.ShowDialog(mActivity);
+						break;
+					case HOME_ACTION_VOICECONTROL:
+						Log.d(TAG, "Voice Control menu selected");
+						intent = new Intent(v.getContext(), VoiceRecognitionActivity.class);
 						break;
 				}
 				if (intent != null) {

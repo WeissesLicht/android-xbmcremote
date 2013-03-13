@@ -2,58 +2,58 @@ package org.xbmc.android.remote.presentation.controller;
 
 
 import java.util.ArrayList;
-import java.util.Timer;
-import java.util.TimerTask;
+//import java.util.Timer;
+//import java.util.TimerTask;
 
-import org.xbmc.android.remote.R;
+//import org.xbmc.android.remote.R;
 import org.xbmc.android.remote.business.ManagerFactory;
-import org.xbmc.android.remote.presentation.activity.GestureRemoteActivity;
-import org.xbmc.android.remote.presentation.activity.NowPlayingActivity;
-import org.xbmc.android.remote.presentation.activity.VoiceRecognitionActivity;
+//import org.xbmc.android.remote.presentation.activity.GestureRemoteActivity;
+//import org.xbmc.android.remote.presentation.activity.NowPlayingActivity;
+//import org.xbmc.android.remote.presentation.activity.VoiceRecognitionActivity;
 import org.xbmc.android.remote.presentation.controller.ListController;
 
 import org.xbmc.android.util.NameOptionsSplitter;
-import org.xbmc.android.widget.gestureremote.IGestureListener;
+//import org.xbmc.android.widget.gestureremote.IGestureListener;
 import org.xbmc.api.business.DataResponse;
 import org.xbmc.api.business.IControlManager;
 import org.xbmc.api.business.IEventClientManager;
 import org.xbmc.api.business.IInfoManager;
 import org.xbmc.api.business.IMusicManager;
-import org.xbmc.api.business.INotifiableManager;
+//import org.xbmc.api.business.INotifiableManager;
 import org.xbmc.api.business.IVideoManager;
 import org.xbmc.api.info.GuiSettings;
 import org.xbmc.api.object.Album;
-import org.xbmc.api.object.Artist;
+//import org.xbmc.api.object.Artist;
 import org.xbmc.api.object.Song;
 import org.xbmc.api.object.Movie;
 import org.xbmc.api.presentation.INotifiableController;
-import org.xbmc.api.type.SortType;
+//import org.xbmc.api.type.SortType;
 import org.xbmc.eventclient.ButtonCodes;
 
 import android.app.Activity;
-import android.app.Dialog;
+//import android.app.Dialog;
 import android.content.Context;
-import android.content.Intent;
+//import android.content.Intent;
 import android.content.SharedPreferences;
-import android.media.AudioManager;
+//import android.media.AudioManager;
 import android.os.Handler;
-import android.os.Vibrator;
+//import android.os.Vibrator;
 import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
-import android.view.KeyEvent;
-import android.view.Menu;
+//import android.view.KeyEvent;
+//import android.view.Menu;
 import android.view.MenuItem;
-import android.view.MotionEvent;
+//import android.view.MotionEvent;
 import android.view.View;
-import android.view.View.OnClickListener;
-import android.view.View.OnTouchListener;
+//import android.view.View.OnClickListener;
+//import android.view.View.OnTouchListener;
 import android.widget.AbsListView;
-import android.widget.Button;
-import android.widget.EditText;
+//import android.widget.Button;
+//import android.widget.EditText;
 
-import android.os.Handler.Callback;
+//import android.os.Handler.Callback;
 
 public class VoiceRecognitionController extends ListController  implements INotifiableController{
 	/**
@@ -174,8 +174,7 @@ public class VoiceRecognitionController extends ListController  implements INoti
 						if (lMatch.length() > supportedCommands.get(i).length() ) {
 						lMatch = lMatch.substring(supportedCommands.get(i).length()+ 1);
 						lMatch = lMatch.trim();
-					
-						runPlaySong(supportedCommands.get(i), lMatch, context);	
+						runPlaySong(supportedCommands.get(i), lMatch, context);
 						}
 					} else if (supportedCommands.get(i).equalsIgnoreCase(COMMAND_PLAY_ALBUM)) {
 						Log.d(TAG, "parseAndAct equals PLAY_ALBUM");
@@ -333,19 +332,20 @@ public class VoiceRecognitionController extends ListController  implements INoti
 	}
 	
 	private boolean runPlaySong(String command, String commandParameter, Context context) {
-		 ArrayList<Song> lSongList = 
-				 mMusicManager.getSongs( commandParameter.toLowerCase(), context);
+		Log.d(TAG, "in runPlaySong");
+		ArrayList<Song> lSongList = mMusicManager.getSongs( commandParameter.toLowerCase(), context);
+		Log.d(TAG, "lSongList "+lSongList.toString());
 		if (lSongList.isEmpty()) {
-				//Replace integers with roman numerals and try again.
-				NameOptionsSplitter lNameOptionsSplitter = new NameOptionsSplitter();
-				String commandParameterwithRomanNumerals = lNameOptionsSplitter.replaceIntwithRN(commandParameter);
-				if (commandParameterwithRomanNumerals != null) {
-					lSongList = 
-							 mMusicManager.getSongs(commandParameterwithRomanNumerals.toLowerCase(), context);
-				}
+			Log.d(TAG, "songList isEmpty");
+			//Replace integers with roman numerals and try again.
+			NameOptionsSplitter lNameOptionsSplitter = new NameOptionsSplitter();
+			String commandParameterwithRomanNumerals = lNameOptionsSplitter.replaceIntwithRN(commandParameter);
+			if (commandParameterwithRomanNumerals != null) {
+				lSongList = mMusicManager.getSongs(commandParameterwithRomanNumerals.toLowerCase(), context);
 			}
-		 if (lSongList != null) {
-		 for (Song lSong : lSongList) {
+		}
+		if (lSongList != null) {
+			for (Song lSong : lSongList) {
 				if (commandParameter.equalsIgnoreCase(lSong.title)) {
 					mMusicManager.play(new QueryResponse(
 							mActivity, 

@@ -73,6 +73,12 @@
 			android:title="Show Power Down"
 			android:summary="Display the Power Down Button"
 			android:enabled="true" android:defaultValue="false" />
+		<CheckBoxPreference
+			android:key="setting_show_home_voicecontrol"
+			android:title="Show Voice Control"
+			android:summary="Display the Voice Control Button"
+			android:enabled="true" android:defaultValue="true" />
+		
 	</PreferenceCategory>
 	<PreferenceCategory android:title="Screen Behaviour">
 		<ListPreference
