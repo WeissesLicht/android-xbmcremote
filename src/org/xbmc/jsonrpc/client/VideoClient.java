@@ -91,30 +91,34 @@ public class VideoClient extends Client implements IVideoClient {
 		obj = sort(obj.p(PARAM_PROPERTIES, arr().add("director").add("file").add("genre").add("imdbnumber").add("playcount").add("rating").add("runtime").add("thumbnail").add("year")), sortBy, sortOrder);
 		final ArrayList<Movie> movies = new ArrayList<Movie>();
 		final JsonNode result = mConnection.getJson(manager, "VideoLibrary.GetMovies", obj);
-		if(result.size() > 0){
-			final JsonNode jsonMovies = result.get("movies");
-			for (Iterator<JsonNode> i = jsonMovies.getElements(); i.hasNext();) {
-				JsonNode jsonMovie = (JsonNode)i.next();
+		if ( result.size() <= 1 )
+		{
+			//No results
+			Log.d(TAG, "No movies found");
+			return null;
+		}
+		final JsonNode jsonMovies = result.get("movies");
+		for (Iterator<JsonNode> i = jsonMovies.getElements(); i.hasNext();) {
+			JsonNode jsonMovie = (JsonNode)i.next();
 				
-				int playcount =getInt(jsonMovie, "playcount");
-				if(playcount > 0 && hideWatched)
+			int playcount =getInt(jsonMovie, "playcount");
+			if(playcount > 0 && hideWatched)
 					continue;
 				
-				movies.add(new Movie(
-					getInt(jsonMovie, "movieid"),
-					getString(jsonMovie, "label"),
-					getInt(jsonMovie, "year"),
-					"",
-					getString(jsonMovie, "file"),
-					getString(jsonMovie, "director"),
-					getString(jsonMovie, "runtime"),
-					getString(jsonMovie, "genre"),
-					getDouble(jsonMovie, "rating"),
-					playcount,
-					getString(jsonMovie, "imdbnumber"),
-					getString(jsonMovie, "thumbnail")
-				));
-			}
+			movies.add(new Movie(
+				getInt(jsonMovie, "movieid"),
+				getString(jsonMovie, "label"),
+				getInt(jsonMovie, "year"),
+				"",
+				getString(jsonMovie, "file"),
+				getString(jsonMovie, "director"),
+				getString(jsonMovie, "runtime"),
+				getString(jsonMovie, "genre"),
+				getDouble(jsonMovie, "rating"),
+				playcount,
+				getString(jsonMovie, "imdbnumber"),
+				getString(jsonMovie, "thumbnail")
+			));
 		}
 		return movies;
 	}

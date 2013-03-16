@@ -1,59 +1,35 @@
 package org.xbmc.android.remote.presentation.controller;
 
-
 import java.util.ArrayList;
-//import java.util.Timer;
-//import java.util.TimerTask;
+import java.util.LinkedHashMap;
+import java.util.Locale;
 
-//import org.xbmc.android.remote.R;
 import org.xbmc.android.remote.business.ManagerFactory;
-//import org.xbmc.android.remote.presentation.activity.GestureRemoteActivity;
-//import org.xbmc.android.remote.presentation.activity.NowPlayingActivity;
-//import org.xbmc.android.remote.presentation.activity.VoiceRecognitionActivity;
 import org.xbmc.android.remote.presentation.controller.ListController;
-
 import org.xbmc.android.util.NameOptionsSplitter;
-//import org.xbmc.android.widget.gestureremote.IGestureListener;
 import org.xbmc.api.business.DataResponse;
 import org.xbmc.api.business.IControlManager;
 import org.xbmc.api.business.IEventClientManager;
 import org.xbmc.api.business.IInfoManager;
 import org.xbmc.api.business.IMusicManager;
-//import org.xbmc.api.business.INotifiableManager;
 import org.xbmc.api.business.IVideoManager;
 import org.xbmc.api.info.GuiSettings;
 import org.xbmc.api.object.Album;
-//import org.xbmc.api.object.Artist;
 import org.xbmc.api.object.Song;
 import org.xbmc.api.object.Movie;
 import org.xbmc.api.presentation.INotifiableController;
-//import org.xbmc.api.type.SortType;
 import org.xbmc.eventclient.ButtonCodes;
-
 import android.app.Activity;
-//import android.app.Dialog;
 import android.content.Context;
-//import android.content.Intent;
 import android.content.SharedPreferences;
-//import android.media.AudioManager;
 import android.os.Handler;
-//import android.os.Vibrator;
 import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
-//import android.view.KeyEvent;
-//import android.view.Menu;
 import android.view.MenuItem;
-//import android.view.MotionEvent;
 import android.view.View;
-//import android.view.View.OnClickListener;
-//import android.view.View.OnTouchListener;
 import android.widget.AbsListView;
-//import android.widget.Button;
-//import android.widget.EditText;
-
-//import android.os.Handler.Callback;
 
 public class VoiceRecognitionController extends ListController  implements INotifiableController{
 	/**
@@ -66,8 +42,11 @@ public class VoiceRecognitionController extends ListController  implements INoti
 	IInfoManager mInfoManager;
 	IControlManager mControl;
 	
-	private ArrayList<String> supportedCommands;
+	private LinkedHashMap<String, String> singleCommandList;
+	private static final String playOptionsCommand = "play"; //TODO move to Strings.xml to allow for localization?
+	private LinkedHashMap<String, String> playOptionsList;
 	
+	/*private ArrayList<String> supportedCommands;
 	public static final String COMMAND_PLAY = "play";
 	public static final String COMMAND_PAUSE = "pause";
 	public static final String COMMAND_FF = "fast forward";
@@ -91,7 +70,7 @@ public class VoiceRecognitionController extends ListController  implements INoti
 	public static final String COMMAND_PLAY_SONG = "play song";
 	public static final String COMMAND_PLAY_ALBUM = "play album";
 	public static final String COMMAND_PLAY_MOVIE = "play movie";
-	
+	*/
 	final SharedPreferences prefs;
 
 	private IMusicManager mMusicManager;
@@ -99,8 +78,10 @@ public class VoiceRecognitionController extends ListController  implements INoti
 	private IControlManager mControlManager;
 	
 	public void onCreate(Activity activity, Handler handler, AbsListView list) {
+		super.onCreate(activity, handler, list);
+		Log.d(TAG, "mActivity: "+mActivity.toString());
 		mActivity = activity;
-		
+		Log.d(TAG, "mActivity: "+mActivity.toString());
 	}
 	public VoiceRecognitionController(Activity activity, Context context) {
 		prefs = PreferenceManager.getDefaultSharedPreferences(context);
@@ -112,8 +93,6 @@ public class VoiceRecognitionController extends ListController  implements INoti
 		mMusicManager = ManagerFactory.getMusicManager(this);
 		mVideoManager = ManagerFactory.getVideoManager(this);
 		mControlManager = ManagerFactory.getControlManager(this);
-		//mVibrator = (Vibrator) context.getSystemService(Context.VIBRATOR_SERVICE);
-		//mDoVibrate = prefs.getBoolean("setting_vibrate_on_touch", true);
 		mInfoManager.getGuiSettingInt(new DataResponse<Integer>() {
 //			@Override
 //			public void run() {
@@ -128,269 +107,233 @@ public class VoiceRecognitionController extends ListController  implements INoti
 		populateCommandList();
 	}
 	private void populateCommandList() {
-		supportedCommands = new ArrayList<String>();
 		
-		supportedCommands.add(COMMAND_PAUSE);
-		supportedCommands.add(COMMAND_FF);
-		supportedCommands.add(COMMAND_RW);
-		supportedCommands.add(COMMAND_STOP);
-		supportedCommands.add(COMMAND_NEXT);
-		supportedCommands.add(COMMAND_PREVIOUS);
-		supportedCommands.add(COMMAND_UP);
-		supportedCommands.add(COMMAND_DOWN);
-		supportedCommands.add(COMMAND_LEFT);
-		supportedCommands.add(COMMAND_RIGHT);
-		supportedCommands.add(COMMAND_SELECT);
-		supportedCommands.add(COMMAND_TITLE);
-		supportedCommands.add(COMMAND_INFO);
-		supportedCommands.add(COMMAND_MENU);
-		supportedCommands.add(COMMAND_BACK);
-		supportedCommands.add(COMMAND_VIDEO);
-		supportedCommands.add(COMMAND_MUSIC);
-		supportedCommands.add(COMMAND_IMAGES);
-		supportedCommands.add(COMMAND_TV);
-		supportedCommands.add(COMMAND_PLAY_SONG);
-		supportedCommands.add(COMMAND_PLAY_ALBUM);
-		supportedCommands.add(COMMAND_PLAY_MOVIE);
+		//Build list of available single word commands and the ButtonCode for the command
+		//TODO move key words to Strings.xml to allow for localization?
+		singleCommandList = new LinkedHashMap<String, String>();
+		singleCommandList.put("pause", ButtonCodes.REMOTE_PAUSE);
+		singleCommandList.put("play", ButtonCodes.REMOTE_PLAY);
+		singleCommandList.put("rewind", ButtonCodes.REMOTE_REVERSE);
+		singleCommandList.put("forward", ButtonCodes.REMOTE_FORWARD);
+		singleCommandList.put("stop", ButtonCodes.REMOTE_STOP);
+		singleCommandList.put("next", ButtonCodes.REMOTE_SKIP_PLUS);
+		singleCommandList.put("previous", ButtonCodes.REMOTE_SKIP_MINUS);
+		singleCommandList.put("up", ButtonCodes.REMOTE_UP);
+		singleCommandList.put("down", ButtonCodes.REMOTE_DOWN);
+		singleCommandList.put("left", ButtonCodes.REMOTE_LEFT);
+		singleCommandList.put("right", ButtonCodes.REMOTE_RIGHT);
+		singleCommandList.put("select", ButtonCodes.REMOTE_ENTER);
+		singleCommandList.put("title", ButtonCodes.REMOTE_TITLE);
+		singleCommandList.put("info", ButtonCodes.REMOTE_INFO);
+		singleCommandList.put("menu", ButtonCodes.REMOTE_MENU);
+		singleCommandList.put("back", ButtonCodes.REMOTE_BACK);
+		singleCommandList.put("video", ButtonCodes.REMOTE_MY_VIDEOS);
+		singleCommandList.put("music", ButtonCodes.REMOTE_MY_MUSIC);
+		singleCommandList.put("images", ButtonCodes.REMOTE_MY_PICTURES);
+		singleCommandList.put("tv", ButtonCodes.REMOTE_MY_TV);
 
-		// This needs to be added last for now.
-		supportedCommands.add(COMMAND_PLAY);
-	}
-	
-	
-	public void showVolume() {
-		Log.d(TAG, "in showVolume");
-	}
+		//List of commands that can occur after the play command
+		playOptionsList = new LinkedHashMap<String, String>();
+		playOptionsList.put("album", "playAlbum");
+		playOptionsList.put("song", "playSong");
+		//playOptionsList.put("artist", "playArtist");
+		//playOptionsList.put("playlist", "playPlaylist");
+		playOptionsList.put("movie", "playMovie");
+		//playOptionsList.put("latest", "playLatest");
+		//playOptionsList.put("next", "playNext");
+		
+		/*
+		 * 
+			display/goto? (insert show here) / season 
+		 */
+		
+		}
 
 	public boolean parseAndAct(ArrayList<String> pMatches, Context context){
-		Log.d(TAG, "parseAndAct matches: "+pMatches);
+		Log.d(TAG, "parseAndAct all voice result: "+pMatches);
+		//Loop through each voice result until we get a match
 		for ( String lMatch : pMatches)  {
-			lMatch.toLowerCase();
-			Log.d(TAG, "parseAndAct lMatch: "+lMatch);
-			for (int i = 0; i < supportedCommands.size(); i++ ) {
-				if (lMatch.startsWith(supportedCommands.get(i))) {
-					if (supportedCommands.get(i).equalsIgnoreCase(COMMAND_PLAY_SONG)){
-						Log.d(TAG, "parseAndAct equals PLAY_SONG");
-						if (lMatch.length() > supportedCommands.get(i).length() ) {
-						lMatch = lMatch.substring(supportedCommands.get(i).length()+ 1);
-						lMatch = lMatch.trim();
-						runPlaySong(supportedCommands.get(i), lMatch, context);
-						}
-					} else if (supportedCommands.get(i).equalsIgnoreCase(COMMAND_PLAY_ALBUM)) {
-						Log.d(TAG, "parseAndAct equals PLAY_ALBUM");
-							if (lMatch.length() > supportedCommands.get(i).length() ) {
-								lMatch = lMatch.substring(supportedCommands.get(i).length()+ 1);
-								lMatch = lMatch.trim();
-						
-						
-								return runPlayAlbum(supportedCommands.get(i), lMatch, context);	
-					
-							}
-					} else if (supportedCommands.get(i).equalsIgnoreCase(COMMAND_PLAY_MOVIE)) {
-						Log.d(TAG, "parseAndAct equals PLAY_MOVIE");
-						if (lMatch.length() > supportedCommands.get(i).length() ) {
-							lMatch = lMatch.substring(supportedCommands.get(i).length()+ 1);
-							lMatch = lMatch.trim();
-					
-					
-							return runPlayMovie(supportedCommands.get(i), lMatch, context);	
-				
-						}
+			//remove trailing and leading space and make lower case
+			lMatch = lMatch.toLowerCase(Locale.US).trim();
+			//First check to see if there is just one 'word'
+			String[] matchedWords = lMatch.split(" ");
+			if (matchedWords.length == 1)
+			{
+				//If we found a valid and successful command return, else keep trying
+				if (runSingleCommand(singleCommandList.get(matchedWords[0]))) return true;
+			}
+			//Maybe first word is play
+			else if (matchedWords.length > 1 && playOptionsCommand.equalsIgnoreCase(matchedWords[0]))
+			{
+				Log.d(TAG, "Multi-word play command");
+				//Check what to play, song album etc....
+				if (playOptionsList.containsKey(matchedWords[1]))
+				{
+					Log.d(TAG, "Play options function: "+ playOptionsList.get(matchedWords[1]));
+					StringBuilder searchTerm = new StringBuilder();
+					for (int i = 2; i < matchedWords.length; i++)
+					{
+						searchTerm.append(matchedWords[i]+" ");
 					}
-						else {
-							Log.d(TAG, "parseAndAct no match");
-						runSimpleCommand(supportedCommands.get(i));
-						if (lMatch.length() > supportedCommands.get(i).length()  ){
-						lMatch = lMatch.substring(supportedCommands.get(i).length()+ 1);
-						lMatch = lMatch.trim();
-						boolean lfoundanother = true;
-						while ((lMatch.length() > 0) && lfoundanother) {
-							//Parse through the rest of the string to get more commands
-							String lNextMatch = findMoreCommands(lMatch);
-							if (lNextMatch == null ) {
-								lfoundanother = false;
-							} else {
-								runSimpleCommand(lNextMatch);
-								if (lMatch.length() >lNextMatch.length() ){
-								lMatch = lMatch.substring(lNextMatch.length() + 1);
-								lMatch = lMatch.trim();
-								} else {
-									lfoundanother = false;
-								}
-							}
-						}
-						}
-					}
-					return true;
+					//If we found a valid and successful command return, else keep trying
+					if (playWithOptions(playOptionsList.get(matchedWords[1]), searchTerm.toString(), context)) return true;
 				}
 			}
+			//Maybe first word is garbage, and second word is actual command>
+			else
+			{	
+				//TODO
+			}
 		}
+		//No valid commands found
 		return false;
 	}
 	
-	public String findMoreCommands(String pMatch){
-		for (int i = 0; i < supportedCommands.size(); i++ ) {
-			if (pMatch.startsWith(supportedCommands.get(i))) {
-				return supportedCommands.get(i);
+	/**
+	 * Function to manage redirecting to correct function to play the relevant media
+	 * 
+	 * @param method - which function to redirect to 
+	 * @param searchTerm - search term
+	 * @param context - application context
+	 * @return - true if played successfully, false otherwise
+	 */
+	private boolean playWithOptions(String method, String searchTerm, Context context) {
+		Log.d(TAG, "playWithOptions: "+method +" 2: "+searchTerm);
+		if (method.equalsIgnoreCase("playSong")) { return runPlaySong(searchTerm, context); }
+		else if (method.equalsIgnoreCase("playAlbum")) { return runPlayAlbum(searchTerm, context); }
+		else if (method.equalsIgnoreCase("playMovie")) { return runPlayMovie(searchTerm, context); }
+		return false;
+	}
+	
+	/**
+	 * Helper function to send a simple key press to xbmc instance
+	 * @param command - command to send; must be a valid ButtonCodes command
+	 * @return - true if a valid command was sent to xbmc else false 
+	 */
+	private boolean runSingleCommand(String command)
+	{
+		if (singleCommandList.containsKey(command))
+		{
+			//Found a valid command, so run it and we're done
+			Log.d(TAG, "runSingleCommand matched on:"+ command);
+			mEventClientManager.sendButton("R1", singleCommandList.get(command), false, true, true, (short)0, (byte)0);
+			return true;
+		}
+		//No matching command in this result
+		Log.d(TAG, "No command matches: "+command);
+		return false;
+	}
+	
+	/**
+	 * Function to play or queue an Album 
+	 * @param searchTerm string to find in Album name
+	 * @param context
+	 * @return true if successfully found and played an album else false
+	 */
+	private boolean runPlayAlbum(String searchTerm, Context context) {
+		Log.d(TAG, "in runPlayAlbum");
+		//Search for matching album titles as supplied
+		ArrayList<Album> lAlbumList = mMusicManager.getAlbums( searchTerm.toLowerCase(Locale.US), context);
+		
+		//Try replacing numbers with roman numerals
+		if (lAlbumList == null || lAlbumList.isEmpty()) {
+			//Replace integers with roman numerals and try again.
+			NameOptionsSplitter lNameOptionsSplitter = new NameOptionsSplitter();
+			String commandParameterwithRomanNumerals = lNameOptionsSplitter.replaceIntwithRN(searchTerm);
+			if (commandParameterwithRomanNumerals != null) {
+				lAlbumList = mMusicManager.getAlbums(commandParameterwithRomanNumerals.toLowerCase(Locale.US), context);
 			}
 		}
 		
-		return null;
-	}
-	
-	private boolean runSimpleCommand(String command){
-		if (command.equalsIgnoreCase(COMMAND_PLAY)) {
-			mEventClientManager.sendButton("R1", ButtonCodes.REMOTE_PLAY, false, true, true, (short)0, (byte)0);
-			return true;
-		} else if (command.equalsIgnoreCase(COMMAND_PAUSE)) {
-			mEventClientManager.sendButton("R1", ButtonCodes.REMOTE_PAUSE, false, true, true, (short)0, (byte)0);
-			return true;
-		} else if (command.equalsIgnoreCase(COMMAND_FF)) {
-			mEventClientManager.sendButton("R1", ButtonCodes.REMOTE_FORWARD, false, true, true, (short)0, (byte)0);
-			return true;
-		} else if (command.equalsIgnoreCase(COMMAND_RW)) {
-			mEventClientManager.sendButton("R1", ButtonCodes.REMOTE_REVERSE, false, true, true, (short)0, (byte)0);
-			return true;
-		} else if (command.equalsIgnoreCase(COMMAND_STOP)) {
-			mEventClientManager.sendButton("R1", ButtonCodes.REMOTE_STOP, false, true, true, (short)0, (byte)0);
-			return true;
-		} else if (command.equalsIgnoreCase(COMMAND_NEXT)) {
-			mEventClientManager.sendButton("R1", ButtonCodes.REMOTE_SKIP_PLUS, false, true, true, (short)0, (byte)0);
-			return true;
-		} else if (command.equalsIgnoreCase(COMMAND_PREVIOUS)) {
-			mEventClientManager.sendButton("R1", ButtonCodes.REMOTE_PAUSE, false, true, true, (short)0, (byte)0);
-			return true;
-		} else if (command.equalsIgnoreCase(COMMAND_UP)) {
-			mEventClientManager.sendButton("R1", ButtonCodes.REMOTE_UP, false, true, true, (short)0, (byte)0);
-			return true;
-		} else if (command.equalsIgnoreCase(COMMAND_DOWN)) {
-			mEventClientManager.sendButton("R1", ButtonCodes.REMOTE_DOWN, false, true, true, (short)0, (byte)0);
-			return true;
-		} else if (command.equalsIgnoreCase(COMMAND_LEFT)) {
-			mEventClientManager.sendButton("R1", ButtonCodes.REMOTE_LEFT, false, true, true, (short)0, (byte)0);
-			return true;
-		} else if (command.equalsIgnoreCase(COMMAND_RIGHT)) {
-			mEventClientManager.sendButton("R1", ButtonCodes.REMOTE_RIGHT, false, true, true, (short)0, (byte)0);
-			return true;
-		} else if (command.equalsIgnoreCase(COMMAND_SELECT)) {
-			mEventClientManager.sendButton("R1", ButtonCodes.REMOTE_ENTER, false, true, true, (short)0, (byte)0);
-			return true;							
-		} else if (command.equalsIgnoreCase(COMMAND_TITLE)) {
-			mEventClientManager.sendButton("R1", ButtonCodes.REMOTE_TITLE, false, true, true, (short)0, (byte)0);
-			return true;							
-		} else if (command.equalsIgnoreCase(COMMAND_INFO)) {
-			mEventClientManager.sendButton("R1", ButtonCodes.REMOTE_INFO, false, true, true, (short)0, (byte)0);
-			return true;							
-		} else if (command.equalsIgnoreCase(COMMAND_MENU)) {
-			mEventClientManager.sendButton("R1", ButtonCodes.REMOTE_MENU, false, true, true, (short)0, (byte)0);
-			return true;							
-		} else if (command.equalsIgnoreCase(COMMAND_BACK)) {
-			mEventClientManager.sendButton("R1", ButtonCodes.REMOTE_BACK, false, true, true, (short)0, (byte)0);
-			return true;							
-		} else if (command.equalsIgnoreCase(COMMAND_VIDEO)) {
-			mEventClientManager.sendButton("R1", ButtonCodes.REMOTE_MY_VIDEOS, false, true, true, (short)0, (byte)0);
-			return true;							
-		} else if (command.equalsIgnoreCase(COMMAND_MUSIC)) {
-			mEventClientManager.sendButton("R1", ButtonCodes.REMOTE_MY_MUSIC, false, true, true, (short)0, (byte)0);
-			return true;							
-		} else if (command.equalsIgnoreCase(COMMAND_IMAGES)) {
-			mEventClientManager.sendButton("R1", ButtonCodes.REMOTE_MY_PICTURES, false, true, true, (short)0, (byte)0);
-			return true;							
-		} else if (command.equalsIgnoreCase(COMMAND_TV)) {
-			mEventClientManager.sendButton("R1", ButtonCodes.REMOTE_MY_TV, false, true, true, (short)0, (byte)0);
-		} else {
-			return false;
-		}
-		return false;
-	}
-	
-	private boolean runPlayAlbum(String command, String commandParameter, Context context) {
-		 ArrayList<Album> lAlbumList = 
-				 mMusicManager.getAlbums( commandParameter.toLowerCase(), context);
-		 if (lAlbumList.isEmpty()) {
-				//Replace integers with roman numerals and try again.
-				NameOptionsSplitter lNameOptionsSplitter = new NameOptionsSplitter();
-				String commandParameterwithRomanNumerals = lNameOptionsSplitter.replaceIntwithRN(commandParameter);
-				if (commandParameterwithRomanNumerals != null) {
-					lAlbumList = 
-							 mMusicManager.getAlbums(commandParameterwithRomanNumerals.toLowerCase(), context);
-				}
-			}
-		 if (lAlbumList != null) {
-		 for (Album lAlbum : lAlbumList) {
-					mMusicManager.play(new QueryResponse(
+		//If we have found some albums - play them
+		//TODO use play / queue preference 
+		//TODO validate play / queue works
+		//TODO check how the loop works - play one at a time?
+		if (lAlbumList != null) {
+			Log.d(TAG, "lAlbumList "+lAlbumList.toString());
+			for (Album lAlbum : lAlbumList) {
+				mMusicManager.play(new QueryResponse(
 							mActivity, 
 							"Playing Album " + lAlbum.artist + "-" + lAlbum.name + "...", 
 							"Error playing song!",
 							true
 						), lAlbum, mActivity.getApplicationContext());
-					return true;
-				
+				return true;	
 			}
-		 }
+		}
 		return false;
 	}
 	
-	private boolean runPlaySong(String command, String commandParameter, Context context) {
+	private boolean runPlaySong(String searchTerm, Context context) {
 		Log.d(TAG, "in runPlaySong");
-		ArrayList<Song> lSongList = mMusicManager.getSongs( commandParameter.toLowerCase(), context);
-		Log.d(TAG, "lSongList "+lSongList.toString());
-		if (lSongList.isEmpty()) {
+		//Search for matching song titles as supplied
+		ArrayList<Song> lSongList = mMusicManager.getSongs( searchTerm.toLowerCase(Locale.US), context);
+		
+		if (lSongList == null || lSongList.isEmpty()) {
+			//Found no songs try replacing numbers with roman numerals
 			Log.d(TAG, "songList isEmpty");
 			//Replace integers with roman numerals and try again.
 			NameOptionsSplitter lNameOptionsSplitter = new NameOptionsSplitter();
-			String commandParameterwithRomanNumerals = lNameOptionsSplitter.replaceIntwithRN(commandParameter);
+			String commandParameterwithRomanNumerals = lNameOptionsSplitter.replaceIntwithRN(searchTerm);
 			if (commandParameterwithRomanNumerals != null) {
-				lSongList = mMusicManager.getSongs(commandParameterwithRomanNumerals.toLowerCase(), context);
+				lSongList = mMusicManager.getSongs(commandParameterwithRomanNumerals.toLowerCase(Locale.US), context);
 			}
 		}
+		
+		//If we have found some songs - play them
+		//TODO use play / queue preference 
+		//TODO validate play / queue works
 		if (lSongList != null) {
 			for (Song lSong : lSongList) {
-				if (commandParameter.equalsIgnoreCase(lSong.title)) {
-					mMusicManager.play(new QueryResponse(
+				Log.d(TAG, "Play song: "+ lSong.title);
+				mMusicManager.play(new QueryResponse(
 							mActivity, 
 							"Playing song " + lSong.artist + "-" + lSong.title + "...", 
 							"Error playing song!",
 							true
 						), lSong, mActivity.getApplicationContext());
-					return true;
-				}
+				return true;
 			}
-		 }
+		}
+		//No songs found
 		return false;
 	}
 
-	private boolean runPlayMovie(String command, String commandParameter, Context context) {
-		ArrayList<Movie> lMovieList = 
-				 mVideoManager.getMovies(commandParameter.toLowerCase(), context);
+	private boolean runPlayMovie(String searchTerm, Context context) {
+		Log.d(TAG, "in runPlayMovie");
+		//Search for matching movie titles as supplied
+		ArrayList<Movie> lMovieList = mVideoManager.getMovies(searchTerm.toLowerCase(Locale.US), context);
 		
-		if (lMovieList.isEmpty()) {
+		//Try replacing numbers with roman numerals
+		if (lMovieList == null || lMovieList.isEmpty()) {
 			//Replace integers with roman numerals and try again.
 			NameOptionsSplitter lNameOptionsSplitter = new NameOptionsSplitter();
-			String commandParameterwithRomanNumerals = lNameOptionsSplitter.replaceIntwithRN(commandParameter);
+			String commandParameterwithRomanNumerals = lNameOptionsSplitter.replaceIntwithRN(searchTerm);
 			if (commandParameterwithRomanNumerals != null) {
 				lMovieList = 
-					 mVideoManager.getMovies(commandParameterwithRomanNumerals.toLowerCase(), context);
+					 mVideoManager.getMovies(commandParameterwithRomanNumerals.toLowerCase(Locale.US), context);
 			}
 		}
-		 if (lMovieList != null) {	
-		 for (Movie lMovie : lMovieList) {
-			 //mControlManager.playFile(new DataResponse<Boolean>() {
-			 mControlManager.playUrl(new DataResponse<Boolean>() {
+		
+		//If we have found some movies - play them
+		//TODO use play / queue preference 
+		//TODO validate play / queue works
+		if (lMovieList != null) {
+			Log.d(TAG, "lMovieList "+lMovieList.toString());
+			for (Movie lMovie : lMovieList) {
+				//mControlManager.playFile(new DataResponse<Boolean>() {
+				mControlManager.playUrl(new DataResponse<Boolean>() {
 					public void run() {
 						if (value) {
 							//mActivity.startActivity(new Intent(mActivity, NowPlayingActivity.class));
 						}
 					}
-				}, lMovie.getPath(), mActivity.getApplicationContext());
-			 
-					return true;
-				}
+				}, lMovie.getPath(), mActivity.getApplicationContext());	 
+				return true;
 			}
-		 
+		}
 		return false;
 	}
-
 	
 	@Override
 	public void onContextItemSelected(MenuItem item) {
@@ -404,22 +347,20 @@ public class VoiceRecognitionController extends ListController  implements INoti
 		// TODO Auto-generated method stub	
 	} 
 	
+	/**
+	 * Helper function to dynamically generate a list of understood commands
+	 * @return A String containing all understood commands
+	 */
 	public String buildVoiceInstructionList() {
 		StringBuilder sb = new StringBuilder();
-		for (String lString : supportedCommands) {
-			if (sb.toString().length() > 0 ) {
-				sb.append(" ");
-			}
+		//Build the single word commands into a string
+		for (String lString : singleCommandList.keySet()) {
 			sb.append(lString);
-			
-			if ( lString.equalsIgnoreCase(COMMAND_PLAY_ALBUM) ) {
-				sb.append(" <ALBUM NAME>");
-			} else if (lString.equalsIgnoreCase(COMMAND_PLAY_MOVIE)) {
-				sb.append(" <MOVIE NAME>");
-			}  else if (lString.equalsIgnoreCase(COMMAND_PLAY_SONG)) {
-				sb.append(" <SONG NAME>");
-			}
 			sb.append("\n");
+		}
+		//Add the play options
+		for (String lString : playOptionsList.keySet()) {
+			sb.append("play "+lString+"\n");
 		}
 		return sb.toString();
 	}

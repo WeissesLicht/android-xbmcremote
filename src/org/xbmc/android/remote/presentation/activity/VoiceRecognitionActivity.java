@@ -50,11 +50,9 @@ public class VoiceRecognitionActivity extends Activity {
         voxRecResultsList = (ListView) findViewById(R.id.voxRecResultsList);
         voxRecResultsList.setEmptyView(findViewById(R.id.voxRecResultsListEmpty));
         
-        // Disable Button if no recognition service is present
+        // Determine if recognition service is present
         PackageManager pm = getPackageManager();
         List<ResolveInfo> activities = pm.queryIntentActivities(new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH), 0);
-        
-        //Check if recognition service is available
         if (activities.size() == 0)
         {   
         	bVoiceRecognizerPresent = false;
@@ -86,7 +84,8 @@ public class VoiceRecognitionActivity extends Activity {
     	Log.d(TAG, "speakButtonClicked...");
         startVoiceRecognitionActivity();
     }
- 
+    
+    
     /**
      * Fire an intent to start the voice recognition activity.
      */
@@ -103,15 +102,16 @@ public class VoiceRecognitionActivity extends Activity {
     	{
     		//No voice recognizer, so fake it for testing purposes  
     		ArrayList<String> commands = new ArrayList<String>();
-    		//commands.add("play song started");
-    		commands.add("play album wish");
+    		commands.add("play movie best");
+    		commands.add("play song take");
     		commands.add("play");
     		commands.add("stop");
     		commands.add("pause");
             Log.d(TAG, "Found matches:" + commands.toString());
             voxRecResultsList.setAdapter(new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, commands));
-            mVoiceRecognitionController.parseAndAct(commands, this.getApplicationContext());
-    		
+            boolean res = mVoiceRecognitionController.parseAndAct(commands, this.getApplicationContext());
+    		Log.d(TAG, "Result of parseAndAct was: " +res);
+    		if(!res) Toast.makeText(this.getApplicationContext(), "No command successful", Toast.LENGTH_SHORT).show();
     	}
     }
 	
@@ -124,10 +124,12 @@ public class VoiceRecognitionActivity extends Activity {
         if (requestCode == REQUEST_CODE && resultCode == RESULT_OK)
         {
             // Populate the wordsList with the String values the recognition engine thought it heard
+        	Log.d(TAG, "Recognizer Results: "+RecognizerIntent.EXTRA_RESULTS.toString());
             ArrayList<String> matches = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
             Log.d(TAG, "Found matches:" + matches.toString());
             voxRecResultsList.setAdapter(new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, matches));
-            mVoiceRecognitionController.parseAndAct(matches, this.getApplicationContext());
+            boolean res = mVoiceRecognitionController.parseAndAct(matches, this.getApplicationContext());
+            Log.d(TAG, "Result of parseAndAct was: " +res);
         }
         super.onActivityResult(requestCode, resultCode, data);
         

@@ -530,6 +530,13 @@ public class MusicClient extends Client implements IMusicClient {
 		Log.d(TAG, "getSongs main function");
 		final ArrayList<Song> songs = new ArrayList<Song>();
 		final JsonNode result = mConnection.getJson(manager, "AudioLibrary.GetSongs", obj);
+		if ( result.size() <= 1 )
+		{
+			//No results
+			Log.d(TAG, "No songs found");
+			return null;
+		}
+		Log.d(TAG, "getSongs result:"+result.toString());
 		final JsonNode jsonAlbums = result.get("songs");
 		Log.d(TAG, "Got songs:" + jsonAlbums.toString());
 		for (Iterator<JsonNode> i = jsonAlbums.getElements(); i.hasNext();) {
