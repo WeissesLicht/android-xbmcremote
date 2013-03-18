@@ -226,7 +226,7 @@ public class VideoClient extends Client implements IVideoClient {
 		ObjNode obj = sort(obj().p(PARAM_PROPERTIES, arr().add("cast")), SortType.TITLE, "descending");
 		final ArrayList<Actor> actors = new ArrayList<Actor>();
 		final JsonNode result = mConnection.getJson(manager, "VideoLibrary.GetMovies", obj);
-		if(result.size() > 0){
+		if(result != null && result.size() > 1){
 			final JsonNode jsonMovies = result.get("movies");
 			//Iterate through each movie
 			for (Iterator<JsonNode> i = jsonMovies.getElements(); i.hasNext();) {
@@ -247,13 +247,13 @@ public class VideoClient extends Client implements IVideoClient {
 				}
 
 			}
-		}
-		//Sort actors list
-		Collections.sort(actors, new Comparator<Actor>(){
-			  public int compare(Actor a1, Actor a2) {
-			    return a1.name.compareToIgnoreCase(a2.name);
-			  }
+			//Sort actors list
+			Collections.sort(actors, new Comparator<Actor>(){
+				  public int compare(Actor a1, Actor a2) {
+				    return a1.name.compareToIgnoreCase(a2.name);
+				  }
 			});
+		}
 		return actors;
 	}
 	
@@ -266,7 +266,7 @@ public class VideoClient extends Client implements IVideoClient {
 		ObjNode obj = sort(obj().p(PARAM_PROPERTIES, arr().add("cast")), SortType.TITLE, "descending");
 		final ArrayList<Actor> actors = new ArrayList<Actor>();
 		final JsonNode result = mConnection.getJson(manager, "VideoLibrary.GetTVShows", obj);
-		if(result.size() > 0){
+		if(result != null && result.size() > 1){
 			final JsonNode jsonTvShows = result.get("tvshows");
 			//Iterate through each show
 			for (Iterator<JsonNode> i = jsonTvShows.getElements(); i.hasNext();) {
@@ -307,7 +307,7 @@ public class VideoClient extends Client implements IVideoClient {
 		
 		final ArrayList<Genre> genres = new ArrayList<Genre>();
 		final JsonNode result = mConnection.getJson(manager, "VideoLibrary.GetGenres", obj);
-		if(result.size() > 0){
+		if(result != null && result.size() > 1){
 			final JsonNode jsonGenres = result.get("genres");
 			for (Iterator<JsonNode> i = jsonGenres.getElements(); i.hasNext();) {
 				JsonNode jsonGenre = (JsonNode)i.next();

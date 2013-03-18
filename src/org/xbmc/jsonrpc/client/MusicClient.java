@@ -440,7 +440,7 @@ public class MusicClient extends Client implements IMusicClient {
 		obj.p(PARAM_PROPERTIES, arr().add("thumbnail")).p("albumartistsonly", albumArtistsOnly);
 		final ArrayList<Artist> artists = new ArrayList<Artist>();
 		final JsonNode result = mConnection.getJson(manager, "AudioLibrary.GetArtists", obj);
-		if(result != null){
+		if(result != null && result.size() > 1){
 			final JsonNode jsonArtists = result.get("artists");
 			for (Iterator<JsonNode> i = jsonArtists.getElements(); i.hasNext();) {
 				JsonNode jsonArtist = (JsonNode)i.next();
@@ -450,7 +450,7 @@ public class MusicClient extends Client implements IMusicClient {
 					getString(jsonArtist, "thumbnail", "") 
 				));
 			}
-		}
+		} else return null;
 		return artists;
 	}
 	
@@ -474,9 +474,10 @@ public class MusicClient extends Client implements IMusicClient {
 	 */
 	public ArrayList<Genre> getGenres(INotifiableManager manager) {
 		
-		
+		Log.d(TAG, "getGenres");
 		final ArrayList<Genre> genres = new ArrayList<Genre>();
 		final JsonNode result = mConnection.getJson(manager, "AudioLibrary.GetGenres", sort(obj(), SortType.TITLE, "descending"));
+		if (result == null || result.size() <= 1) return null;
 		final JsonNode jsonGenres = result.get("genres");
 		for (Iterator<JsonNode> i = jsonGenres.getElements(); i.hasNext();) {
 			JsonNode jsonGenre = (JsonNode)i.next();
@@ -490,7 +491,7 @@ public class MusicClient extends Client implements IMusicClient {
 	
 	/**
 	 * Updates the album object with additional data from the albuminfo table
-	 * @param album
+	 * @param album1
 	 * @return Updated album
 	 */
 	public Album updateAlbumInfo(INotifiableManager manager, Album album) {

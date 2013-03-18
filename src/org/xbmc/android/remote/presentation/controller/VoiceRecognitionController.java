@@ -136,11 +136,11 @@ public class VoiceRecognitionController extends ListController  implements INoti
 		playOptionsList = new LinkedHashMap<String, String>();
 		playOptionsList.put("album", "playAlbum");
 		playOptionsList.put("song", "playSong");
-		//playOptionsList.put("artist", "playArtist");
-		//playOptionsList.put("playlist", "playPlaylist");
+		playOptionsList.put("artist", "playArtist");
+		playOptionsList.put("playlist", "playPlaylist");
 		playOptionsList.put("movie", "playMovie");
-		//playOptionsList.put("latest", "playLatest");
-		//playOptionsList.put("next", "playNext");
+		playOptionsList.put("latest", "playLatest");
+		playOptionsList.put("next", "playNext");
 		
 		/*
 		 * 
@@ -202,6 +202,11 @@ public class VoiceRecognitionController extends ListController  implements INoti
 		if (method.equalsIgnoreCase("playSong")) { return runPlaySong(searchTerm, context); }
 		else if (method.equalsIgnoreCase("playAlbum")) { return runPlayAlbum(searchTerm, context); }
 		else if (method.equalsIgnoreCase("playMovie")) { return runPlayMovie(searchTerm, context); }
+		else if (method.equalsIgnoreCase("playArtist")) { return runPlayArtist(searchTerm, context); }
+		else if (method.equalsIgnoreCase("playPlaylist")) { return runPlayPlaylist(searchTerm, context); }
+		else if (method.equalsIgnoreCase("playLatest")) { return runPlayLatest(searchTerm, context); }
+		else if (method.equalsIgnoreCase("playNext")) { return runPlayNext(searchTerm, context); }
+
 		return false;
 	}
 	
@@ -334,6 +339,47 @@ public class VoiceRecognitionController extends ListController  implements INoti
 		}
 		return false;
 	}
+	
+	/**
+	 * Play next unwatched episode in a tv show
+	 * @param searchTerm term to search for tv show name
+	 * @param context
+	 * @return
+	 */
+	private boolean runPlayNext(String searchTerm, Context context) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+	
+	/**
+	 * Play latest episode in a tv show
+	 * @param searchTerm term to search for tv show name
+	 * @param context
+	 * @return
+	 */
+	private boolean runPlayLatest(String searchTerm, Context context) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+	
+	/**
+	 * Function to play playlists that match search term 
+	 * @param searchTerm 
+	 * @param context
+	 * @return
+	 */
+	private boolean runPlayPlaylist(String searchTerm, Context context) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+	
+	
+	private boolean runPlayArtist(String searchTerm, Context context) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	
 	
 	@Override
 	public void onContextItemSelected(MenuItem item) {

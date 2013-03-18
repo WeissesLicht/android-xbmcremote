@@ -63,7 +63,7 @@ public class TvShowClient extends Client implements ITvShowClient {
 		
 		final ArrayList<TvShow> tvshows = new ArrayList<TvShow>();
 		final JsonNode result = mConnection.getJson(manager, "VideoLibrary.GetTvShows", obj);
-		if(result.size() > 0){
+		if(result != null && result.size() > 1){
 			final JsonNode jsonShows = result.get("tvshows");
 			for (Iterator<JsonNode> i = jsonShows.getElements(); i.hasNext();) {
 				JsonNode jsonShow = (JsonNode)i.next();

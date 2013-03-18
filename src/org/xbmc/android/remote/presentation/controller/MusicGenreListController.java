@@ -31,10 +31,12 @@ import org.xbmc.api.business.DataResponse;
 import org.xbmc.api.business.IMusicManager;
 import org.xbmc.api.object.Genre;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
 import android.graphics.BitmapFactory;
 import android.os.Handler;
+import android.util.Log;
 import android.view.ContextMenu;
 import android.view.MenuItem;
 import android.view.View;
@@ -77,8 +79,10 @@ public class MusicGenreListController extends ListController implements IControl
 			
 			final String title = "Genres";
 			DataResponse<ArrayList<Genre>> response = new DataResponse<ArrayList<Genre>>() {
+				@SuppressLint("NewApi")
 				public void run() {
-					if (value.size() > 0) {
+					if (value != null && value.size() > 1) {
+						Log.d(TAG, "got values: "+value.toString());
 						setTitle(title + " (" + value.size() + ")");
 						mList.setAdapter(new GenreAdapter(mActivity, value));
 					} else {
