@@ -10,6 +10,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.speech.RecognizerIntent;
+import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
@@ -71,9 +72,12 @@ public class VoiceRecognitionActivity extends Activity {
     
     private void showVoiceInstructions(VoiceRecognitionController controller) {
     	emptyList = (TextView) findViewById(R.id.voxRecResultsListEmpty);
-    	String preface = getString(R.string.vox_supported_commands);
-    	String instructions = controller.buildVoiceInstructionList();
-    	emptyList.setText(preface + "\n" + instructions);
+    	ArrayList<String> instructions = controller.buildVoiceInstructionList();
+    	emptyList.setMovementMethod(new ScrollingMovementMethod());
+    	emptyList.setText(getString(R.string.vox_supported_commands)+"\n");
+    	for (String lString : instructions) {
+			emptyList.append(" - "+lString+"\n");
+		}
     }
     
     /**

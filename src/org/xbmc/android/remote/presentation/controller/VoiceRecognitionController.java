@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.Locale;
 
+import org.xbmc.android.remote.R;
 import org.xbmc.android.remote.business.ManagerFactory;
 import org.xbmc.android.remote.presentation.controller.ListController;
 import org.xbmc.android.util.NameOptionsSplitter;
@@ -111,8 +112,8 @@ public class VoiceRecognitionController extends ListController  implements INoti
 		//Build list of available single word commands and the ButtonCode for the command
 		//TODO move key words to Strings.xml to allow for localization?
 		singleCommandList = new LinkedHashMap<String, String>();
-		singleCommandList.put("pause", ButtonCodes.REMOTE_PAUSE);
 		singleCommandList.put("play", ButtonCodes.REMOTE_PLAY);
+		singleCommandList.put("pause", ButtonCodes.REMOTE_PAUSE);
 		singleCommandList.put("rewind", ButtonCodes.REMOTE_REVERSE);
 		singleCommandList.put("forward", ButtonCodes.REMOTE_FORWARD);
 		singleCommandList.put("stop", ButtonCodes.REMOTE_STOP);
@@ -397,17 +398,16 @@ public class VoiceRecognitionController extends ListController  implements INoti
 	 * Helper function to dynamically generate a list of understood commands
 	 * @return A String containing all understood commands
 	 */
-	public String buildVoiceInstructionList() {
-		StringBuilder sb = new StringBuilder();
+	public ArrayList<String> buildVoiceInstructionList() {
+		ArrayList<String> instructions = new ArrayList<String>();
 		//Build the single word commands into a string
 		for (String lString : singleCommandList.keySet()) {
-			sb.append(lString);
-			sb.append("\n");
+			instructions.add(lString);
 		}
 		//Add the play options
 		for (String lString : playOptionsList.keySet()) {
-			sb.append("play "+lString+"\n");
+			instructions.add("play "+lString);
 		}
-		return sb.toString();
+		return instructions;
 	}
 }
