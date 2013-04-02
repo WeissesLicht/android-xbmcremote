@@ -9,6 +9,7 @@ import org.xbmc.api.business.ITvShowManager;
 import org.xbmc.api.object.Actor;
 import org.xbmc.api.object.Episode;
 import org.xbmc.api.object.Genre;
+import org.xbmc.api.object.Movie;
 import org.xbmc.api.object.Season;
 import org.xbmc.api.object.TvShow;
 import org.xbmc.api.type.SortType;
@@ -65,6 +66,19 @@ public class TvShowManager extends AbstractManager implements ITvShowManager,
 	public ArrayList<TvShow> getTvShows(Context context) {
 		try {
 			return shows(context).getTvShows(TvShowManager.this, getSortBy(SortType.TITLE), getSortOrder(), getHideWatched(context));
+		} catch (WifiStateException e) {
+			TvShowManager.this.onError(e);
+		}
+		return new ArrayList<TvShow>();
+	}
+	
+	/**
+	 * SYNCHRONOUSLY gets tv shows from database by name
+	 * @return All tv shows in database
+	 */
+	public ArrayList<TvShow> getTvShows(String tvshowname, Context context) {
+		try {
+			return shows(context).getTvShows(TvShowManager.this, tvshowname, getSortBy(SortType.TITLE), getSortOrder(), getHideWatched(context));
 		} catch (WifiStateException e) {
 			TvShowManager.this.onError(e);
 		}
@@ -161,8 +175,7 @@ public class TvShowManager extends AbstractManager implements ITvShowManager,
 	 * @param show TvShow the returning episodes belong to
 	 * @param season Season the returning episodes belong to
 	 */
-	public void getEpisodes(DataResponse<ArrayList<Episode>> response,
-			final TvShow show, final Season season, final Context context) {
+	public void getEpisodes(DataResponse<ArrayList<Episode>> response, final TvShow show, final Season season, final Context context) {
 		mHandler.post(new Command<ArrayList<Episode>>(response, this) {
 			@Override
 			public void doRun() throws Exception {
@@ -177,8 +190,7 @@ public class TvShowManager extends AbstractManager implements ITvShowManager,
 	 * @param response Response object
 	 * @param season Season the returning episodes belong to
 	 */
-	public void getEpisodes(DataResponse<ArrayList<Episode>> response,
-			final Season season, final Context context) {
+	public void getEpisodes(DataResponse<ArrayList<Episode>> response, final Season season, final Context context) {
 		mHandler.post(new Command<ArrayList<Episode>>(response, this) {
 			@Override
 			public void doRun() throws Exception {
@@ -225,4 +237,23 @@ public class TvShowManager extends AbstractManager implements ITvShowManager,
 		});
 		
 	}
+
+	public ArrayList<Episode> getUnwatchedEpisodes(TvShow tvShow, Context context) {
+		try {
+			return shows(context).getEpisodes(TvShowManager.this, tvShow, getSortBy(SortType.EPISODE_NUM), "ASC", true);
+		} catch (WifiStateException e) {
+			TvShowManager.this.onError(e);
+		}
+		return new ArrayList<Episode>();
+	}
+
+	public ArrayList<Episode> getEpisodes(TvShow tvShow, Context context) {
+		try {
+			return shows(context).getEpisodes(TvShowManager.this, tvShow, getSortBy(SortType.EPISODE_NUM), getSortOrder(), getHideWatched(context));
+		} catch (WifiStateException e) {
+			TvShowManager.this.onError(e);
+		}
+		return new ArrayList<Episode>();
+	}
+
 }

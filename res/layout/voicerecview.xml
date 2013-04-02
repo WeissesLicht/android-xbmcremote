@@ -14,8 +14,11 @@
 	
    	<ListView
        android:id="@+id/voxRecResultsList"
-       android:layout_width="wrap_content"
-       android:layout_height="wrap_content"
+       android:layout_width="match_parent"
+       android:layout_height="match_parent"
+       android:scrollbars = "vertical"
+       android:layout_below="@id/titlebar"
+       android:layout_above="@+id/voxRecButton"
         />
     
     <TextView
@@ -24,8 +27,8 @@
           android:layout_height="match_parent"
           android:scrollbars = "vertical"
           android:text="@string/vox_supported_commands"
-          android:layout_below="@+id/titlebar"
-          android:layout_above="@+id/voxRecButton" />
+          android:layout_below="@id/titlebar"
+          android:layout_above="@id/voxRecButton" />
     
     <ImageButton
         android:id="@id/voxRecButton"

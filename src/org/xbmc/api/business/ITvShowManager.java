@@ -17,6 +17,7 @@ public interface ITvShowManager extends IManager{
 	public void getTvShowGenres(DataResponse<ArrayList<Genre>> response, Context context);
 	public void getTvShows(DataResponse<ArrayList<TvShow>> response, Genre genre, Context context);
 	public ArrayList<TvShow> getTvShows(Context context);
+	public ArrayList<TvShow> getTvShows(String lowerCase, Context context);
 	public ArrayList<Season> getAllSeasons(Context context);
 	public ArrayList<Episode> getAllEpisodes(Context context);
 	
@@ -26,6 +27,8 @@ public interface ITvShowManager extends IManager{
 	 * @param actor
 	 */
 	public void getTvShows(DataResponse<ArrayList<TvShow>> response, Actor actor, Context context);
+	
+	
 	
 	/**
 	 * Gets all Episodes for the specified show
@@ -82,4 +85,10 @@ public interface ITvShowManager extends IManager{
 	 * Put in here everything that has to be cleaned up after leaving an activity.
 	 */
 	public void postActivity();
+	
+	
+	public ArrayList<Episode> getUnwatchedEpisodes(TvShow tvShow, Context context);
+	public ArrayList<Episode> getEpisodes(TvShow show, Context context);
+	
+	
 }

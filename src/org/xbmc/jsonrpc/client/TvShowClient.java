@@ -34,12 +34,14 @@ import org.xbmc.api.object.Episode;
 import org.xbmc.api.object.Genre;
 import org.xbmc.api.object.Host;
 import org.xbmc.api.object.ICoverArt;
+import org.xbmc.api.object.Movie;
 import org.xbmc.api.object.Season;
 import org.xbmc.api.object.TvShow;
 import org.xbmc.api.type.MediaType;
 import org.xbmc.api.type.SortType;
 import org.xbmc.jsonrpc.Connection;
 import android.graphics.Bitmap;
+import android.util.Log;
 
 /**
  * TV show client for JSON RPC.
@@ -53,6 +55,10 @@ public class TvShowClient extends Client implements ITvShowClient {
 		super(connection);
 	}
 	
+	public ArrayList<TvShow> getTvShows(INotifiableManager manager, String tvshowname, int sortBy, String sortOrder, boolean hideWatched){
+		Log.d("TvShowClient", "Get tvshows title contains: "+tvshowname);
+		return getTvShows(manager, obj().p("filter", obj().p("field", "title").p("operator","contains").p("value", tvshowname)), sortBy, sortOrder, hideWatched);
+	}
 
 	public ArrayList<TvShow> getTvShows(INotifiableManager manager, int sortBy, String sortOrder, boolean hideWatched) {
 		return getTvShows(manager, obj(), sortBy, sortOrder, hideWatched);
@@ -196,7 +202,8 @@ public class TvShowClient extends Client implements ITvShowClient {
 	 * @return
 	 */
 	public ArrayList<Episode> getEpisodes(INotifiableManager manager, TvShow show, int sortBy, String sortOrder, boolean hideWatched) {
-		return getEpisodes(manager, show, null, sortBy, sortOrder, hideWatched);
+		Log.d(TAG, "getEpisodes: show "+show.title+" sortBy: "+sortBy+"sortOrder: "+sortOrder+" hideWatched: "+hideWatched);
+		return getEpisodes(manager, obj().p("tvshowid", show.id), sortBy, sortOrder, hideWatched);
 	}
 	
 	/**

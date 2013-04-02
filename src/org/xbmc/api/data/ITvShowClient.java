@@ -15,6 +15,7 @@ import android.graphics.Bitmap;
 public interface ITvShowClient extends IClient {
 
 	public ArrayList<TvShow> getTvShows(INotifiableManager manager, int sortBy, String sortOrder, boolean hideWatched);
+	public ArrayList<TvShow> getTvShows(INotifiableManager manager, String tvshowname, int sortBy, String sortOrder, boolean hideWatched);
 	public ArrayList<Actor> getTvShowActors(INotifiableManager manager) ;
 	public ArrayList<Genre> getTvShowGenres(INotifiableManager manager);
 	

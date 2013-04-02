@@ -673,4 +673,10 @@ public class TvShowClient extends Client implements ITvShowClient {
 		// TODO Auto-generated method stub
 		return null;
 	}
+
+	public ArrayList<TvShow> getTvShows(INotifiableManager manager,
+			String tvshowname, int sortBy, String sortOrder, boolean hideWatched) {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }

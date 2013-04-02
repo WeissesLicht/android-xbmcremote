@@ -6,6 +6,7 @@ import java.util.Locale;
 
 import org.xbmc.android.remote.R;
 import org.xbmc.android.remote.business.ManagerFactory;
+import org.xbmc.android.remote.presentation.activity.NowPlayingActivity;
 import org.xbmc.android.remote.presentation.controller.ListController;
 import org.xbmc.android.util.NameOptionsSplitter;
 import org.xbmc.api.business.DataResponse;
@@ -13,15 +14,19 @@ import org.xbmc.api.business.IControlManager;
 import org.xbmc.api.business.IEventClientManager;
 import org.xbmc.api.business.IInfoManager;
 import org.xbmc.api.business.IMusicManager;
+import org.xbmc.api.business.ITvShowManager;
 import org.xbmc.api.business.IVideoManager;
 import org.xbmc.api.info.GuiSettings;
 import org.xbmc.api.object.Album;
+import org.xbmc.api.object.Episode;
 import org.xbmc.api.object.Song;
 import org.xbmc.api.object.Movie;
+import org.xbmc.api.object.TvShow;
 import org.xbmc.api.presentation.INotifiableController;
 import org.xbmc.eventclient.ButtonCodes;
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Handler;
 import android.preference.PreferenceManager;
@@ -47,35 +52,11 @@ public class VoiceRecognitionController extends ListController  implements INoti
 	private static final String playOptionsCommand = "play"; //TODO move to Strings.xml to allow for localization?
 	private LinkedHashMap<String, String> playOptionsList;
 	
-	/*private ArrayList<String> supportedCommands;
-	public static final String COMMAND_PLAY = "play";
-	public static final String COMMAND_PAUSE = "pause";
-	public static final String COMMAND_FF = "fast forward";
-	public static final String COMMAND_RW = "rewind";
-	public static final String COMMAND_STOP = "stop";
-	public static final String COMMAND_NEXT = "next"; 
-	public static final String COMMAND_PREVIOUS = "previous";
-	public static final String COMMAND_UP = "up";
-	public static final String COMMAND_DOWN = "down";
-	public static final String COMMAND_LEFT = "left";
-	public static final String COMMAND_RIGHT = "right";
-	public static final String COMMAND_SELECT = "select";
-	public static final String COMMAND_TITLE = "title";
-	public static final String COMMAND_INFO = "info";
-	public static final String COMMAND_MENU = "menu";
-	public static final String COMMAND_BACK = "back";
-	public static final String COMMAND_VIDEO = "video";
-	public static final String COMMAND_MUSIC = "music";
-	public static final String COMMAND_IMAGES = "images";
-	public static final String COMMAND_TV = "tv";
-	public static final String COMMAND_PLAY_SONG = "play song";
-	public static final String COMMAND_PLAY_ALBUM = "play album";
-	public static final String COMMAND_PLAY_MOVIE = "play movie";
-	*/
 	final SharedPreferences prefs;
 
 	private IMusicManager mMusicManager;
 	private IVideoManager mVideoManager;
+	private ITvShowManager mTvShowManager;
 	private IControlManager mControlManager;
 	
 	public void onCreate(Activity activity, Handler handler, AbsListView list) {
@@ -93,6 +74,7 @@ public class VoiceRecognitionController extends ListController  implements INoti
 		mEventClientManager = ManagerFactory.getEventClientManager(this);
 		mMusicManager = ManagerFactory.getMusicManager(this);
 		mVideoManager = ManagerFactory.getVideoManager(this);
+		mTvShowManager = ManagerFactory.getTvManager(this);
 		mControlManager = ManagerFactory.getControlManager(this);
 		mInfoManager.getGuiSettingInt(new DataResponse<Integer>() {
 //			@Override
@@ -137,16 +119,12 @@ public class VoiceRecognitionController extends ListController  implements INoti
 		playOptionsList = new LinkedHashMap<String, String>();
 		playOptionsList.put("album", "playAlbum");
 		playOptionsList.put("song", "playSong");
-		playOptionsList.put("artist", "playArtist");
-		playOptionsList.put("playlist", "playPlaylist");
+		//playOptionsList.put("artist", "playArtist");
+		//playOptionsList.put("playlist", "playPlaylist");
 		playOptionsList.put("movie", "playMovie");
 		playOptionsList.put("latest", "playLatest");
-		playOptionsList.put("next", "playNext");
-		
-		/*
-		 * 
-			display/goto? (insert show here) / season 
-		 */
+		playOptionsList.put("next", "playNext"); 
+		//	display/goto? (insert show here) / season 
 		
 		}
 
@@ -183,7 +161,7 @@ public class VoiceRecognitionController extends ListController  implements INoti
 			//Maybe first word is garbage, and second word is actual command>
 			else
 			{	
-				//TODO
+				//TODO ditch first 'word' and try again
 			}
 		}
 		//No valid commands found
@@ -348,7 +326,29 @@ public class VoiceRecognitionController extends ListController  implements INoti
 	 * @return
 	 */
 	private boolean runPlayNext(String searchTerm, Context context) {
-		// TODO Auto-generated method stub
+		Log.d(TAG, "in runPlayNext");
+		//Search for matching tv shows as supplied
+		Log.d(TAG, "searchTerm: "+searchTerm);
+		ArrayList<TvShow> lTvShowList = mTvShowManager.getTvShows(searchTerm.toLowerCase(Locale.US), context);
+		//Only proceed if we have found at least one matching TvShow
+		if (lTvShowList != null & lTvShowList.size() > 0) {
+			Log.d(TAG, "lTvShowList:"+lTvShowList.toString());
+			TvShow show = lTvShowList.get(0);
+			Log.d(TAG, "using: "+show.title);
+			ArrayList<Episode> lEpisodes = mTvShowManager.getUnwatchedEpisodes(show, context);
+			//Play first unwatched episode - if there is one
+			if (lEpisodes != null & lEpisodes.size() > 0) {
+				Log.d(TAG, "Playing: "+lEpisodes.get(0).title);
+				mControlManager.playUrl(new DataResponse<Boolean>() {
+					public void run() {
+						if (value) {
+							//mActivity.startActivity(new Intent(mActivity, NowPlayingActivity.class));
+						}
+					}
+				}, lEpisodes.get(0).getPath(), mActivity.getApplicationContext());	 
+				return true;
+			}
+		}		
 		return false;
 	}
 	
@@ -359,7 +359,30 @@ public class VoiceRecognitionController extends ListController  implements INoti
 	 * @return
 	 */
 	private boolean runPlayLatest(String searchTerm, Context context) {
-		// TODO Auto-generated method stub
+		Log.d(TAG, "in runPlayLatest");
+		//Search for matching tv shows as supplied
+		Log.d(TAG, "searchTerm: "+searchTerm);
+		ArrayList<TvShow> lTvShowList = mTvShowManager.getTvShows(searchTerm.toLowerCase(Locale.US), context);
+		//Only proceed if we have found at least one matching TvShow
+		if (lTvShowList != null & lTvShowList.size() > 0) {
+			Log.d(TAG, "lTvShowList:"+lTvShowList.toString());
+			TvShow show = lTvShowList.get(0);
+			Log.d(TAG, "using: "+show.title);
+			ArrayList<Episode> lEpisodes = mTvShowManager.getEpisodes(show, context);
+			//Play last episode - if there is one
+			if (lEpisodes != null & lEpisodes.size() > 0) {
+				Log.d(TAG, "Episodes found: "+lEpisodes.size());
+				Log.d(TAG, "Playing: "+lEpisodes.get(lEpisodes.size()-1).title);
+				mControlManager.playUrl(new DataResponse<Boolean>() {
+					public void run() {
+						if (value) {
+							//mActivity.startActivity(new Intent(mActivity, NowPlayingActivity.class));
+						}
+					}
+				}, lEpisodes.get(lEpisodes.size()-1).getPath(), mActivity.getApplicationContext());	 
+				return true;
+			}
+		}		
 		return false;
 	}
 	
@@ -410,4 +433,5 @@ public class VoiceRecognitionController extends ListController  implements INoti
 		}
 		return instructions;
 	}
+	
 }

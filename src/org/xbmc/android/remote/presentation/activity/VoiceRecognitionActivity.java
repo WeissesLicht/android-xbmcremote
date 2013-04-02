@@ -105,12 +105,14 @@ public class VoiceRecognitionActivity extends Activity {
     	else
     	{
     		//No voice recognizer, so fake it for testing purposes  
+    		//TODO Remove
     		ArrayList<String> commands = new ArrayList<String>();
-    		commands.add("play movie best");
-    		commands.add("play song take");
-    		commands.add("play");
-    		commands.add("stop");
-    		commands.add("pause");
+    		//commands.add("play next big");
+    		commands.add("play latest big");
+    		//commands.add("play song take");
+    		//commands.add("play");
+    		//commands.add("stop");
+    		//commands.add("pause");
             Log.d(TAG, "Found matches:" + commands.toString());
             voxRecResultsList.setAdapter(new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, commands));
             boolean res = mVoiceRecognitionController.parseAndAct(commands, this.getApplicationContext());
