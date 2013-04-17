@@ -107,8 +107,9 @@ public class VoiceRecognitionActivity extends Activity {
     		//No voice recognizer, so fake it for testing purposes  
     		//TODO Remove
     		ArrayList<String> commands = new ArrayList<String>();
-    		//commands.add("play next big");
-    		commands.add("play latest big");
+    		commands.add("play movie blade runner");
+    		//commands.add("play latest big");
+    		//commands.add("play album annual");
     		//commands.add("play song take");
     		//commands.add("play");
     		//commands.add("stop");

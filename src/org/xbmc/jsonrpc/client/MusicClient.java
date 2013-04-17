@@ -211,8 +211,9 @@ public class MusicClient extends Client implements IMusicClient {
 	 * @return True on success, false otherwise.
 	 */
 	public boolean play(INotifiableManager manager, Song song) {
-		
+		Log.d(TAG, "play - with song");
 		int size = mConnection.getInt(manager, "Playlist.GetProperties", obj().p("playlistid", PLAYLIST_ID), "size");
+		Log.d(TAG, "size: "+size);
 		
 		if(addToPlaylist(manager, song))
 			return setPlaylistPosition(manager, size);

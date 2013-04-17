@@ -155,7 +155,7 @@ public class VoiceRecognitionController extends ListController  implements INoti
 						searchTerm.append(matchedWords[i]+" ");
 					}
 					//If we found a valid and successful command return, else keep trying
-					if (playWithOptions(playOptionsList.get(matchedWords[1]), searchTerm.toString(), context)) return true;
+					if (playWithOptions(playOptionsList.get(matchedWords[1]), searchTerm.toString().trim(), context)) return true;
 				}
 			}
 			//Maybe first word is garbage, and second word is actual command>
@@ -229,13 +229,14 @@ public class VoiceRecognitionController extends ListController  implements INoti
 			}
 		}
 		
-		//If we have found some albums - play them
+		//If we have found some albums - play the first one???
 		//TODO use play / queue preference 
 		//TODO validate play / queue works
 		//TODO check how the loop works - play one at a time?
 		if (lAlbumList != null) {
 			Log.d(TAG, "lAlbumList "+lAlbumList.toString());
 			for (Album lAlbum : lAlbumList) {
+				//play with an Album clears the playlist first..
 				mMusicManager.play(new QueryResponse(
 							mActivity, 
 							"Playing Album " + lAlbum.artist + "-" + lAlbum.name + "...", 
@@ -268,6 +269,8 @@ public class VoiceRecognitionController extends ListController  implements INoti
 		//TODO use play / queue preference 
 		//TODO validate play / queue works
 		if (lSongList != null) {
+			//Clear the queue?
+			
 			for (Song lSong : lSongList) {
 				Log.d(TAG, "Play song: "+ lSong.title);
 				mMusicManager.play(new QueryResponse(
