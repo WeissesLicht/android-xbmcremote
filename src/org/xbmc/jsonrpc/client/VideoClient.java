@@ -119,7 +119,31 @@ public class VideoClient extends Client implements IVideoClient {
 				getString(jsonMovie, "imdbnumber"),
 				getString(jsonMovie, "thumbnail")
 			));
-		}
+
+				int runtime = getInt(jsonMovie, "runtime");
+				String formatted_runtime = "";
+				if(runtime != -1){						
+					if(runtime >= 3600)
+						formatted_runtime = (runtime / 3600) + "hr ";
+					formatted_runtime += ((runtime % 3600) / 60) + "min";					
+				}
+				
+				
+				movies.add(new Movie(
+					getInt(jsonMovie, "movieid"),
+					getString(jsonMovie, "label"),
+					getInt(jsonMovie, "year"),
+					"",
+					getString(jsonMovie, "file"),
+					getString(jsonMovie, "director"),
+					formatted_runtime,
+					getString(jsonMovie, "genre"),
+					getDouble(jsonMovie, "rating"),
+					playcount,
+					getString(jsonMovie, "imdbnumber"),
+					getString(jsonMovie, "thumbnail")
+				));
+			}
 		return movies;
 	}
 	
