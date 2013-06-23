@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android" 
 	package="org.xbmc.android.remote"
-	android:versionName="0.11.09-nifty" 
-	android:versionCode="01109" 
+	android:versionName="0.11.10-WeissesLicht"
+	android:versionCode="01110"
 	android:installLocation="auto">
 	
 	<uses-sdk android:minSdkVersion="8" android:targetSdkVersion="16" />

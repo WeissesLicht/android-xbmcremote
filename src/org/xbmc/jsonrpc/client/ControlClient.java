@@ -183,14 +183,26 @@ public class ControlClient extends Client implements IControlClient {
 	 * 
 	 * @param manager Manager reference
 	 * @param type     Seek type, relative or absolute
-	 * @param progress Progress
+	 * @param progress Progress; for relative type in seconds
 	 * @return true on success, false otherwise.
 	 */
 	public boolean seek(INotifiableManager manager, SeekType type, int progress) {
 		if (type.compareTo(SeekType.absolute) == 0)
 			return mConnection.getJson(manager, "Player.Seek", obj().p("playerid", getActivePlayerId(manager)).p("value", progress)).get("percentage")!=null;
 		else
-			return false;//mConnection.getBoolean(manager, "SeekPercentageRelative", String.valueOf(progress));
+        {
+            JsonNode totalTime = mConnection.getJson(manager, "Player.GetProperties", obj().p("playerid", getActivePlayerId(manager)).p(PARAM_PROPERTIES, arr().add("totaltime")), "totaltime");
+            float totalTimeSec = (float) this.parseTime(totalTime);
+            JsonNode currentTime = mConnection.getJson(manager, "Player.GetProperties", obj().p("playerid", getActivePlayerId(manager)).p(PARAM_PROPERTIES, arr().add("time")), "time");
+            int currentTimeSec = this.parseTime(currentTime);
+            //assume progress in seconds
+            float targetTimeSec = (float) currentTimeSec + progress;
+            int targetTimePercent = Math.round(targetTimeSec * 100 / totalTimeSec);
+            return mConnection.getJson(manager, "Player.Seek", obj().p("playerid", getActivePlayerId(manager)).p("value", targetTimePercent)).get("percentage")!=null;
+
+            //return false;
+        }
+			//return false;//mConnection.getBoolean(manager, "SeekPercentageRelative", String.valueOf(progress));
 	}
 	
 	/**
@@ -381,7 +393,7 @@ public class ControlClient extends Client implements IControlClient {
 	/**
 	 * Clears a playlist.
 	 * @param manager Manager reference
-	 * @param int Playlist to clear (0 = music, 1 = video)
+	 * @param playlistId Playlist to clear (0 = music, 1 = video)
 	 * @return True on success, false otherwise.
 	 */
 	public boolean clearPlaylist(INotifiableManager manager, int playlistId) {

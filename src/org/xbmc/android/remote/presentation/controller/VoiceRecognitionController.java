@@ -23,6 +23,7 @@ import org.xbmc.api.object.Song;
 import org.xbmc.api.object.Movie;
 import org.xbmc.api.object.TvShow;
 import org.xbmc.api.presentation.INotifiableController;
+import org.xbmc.api.type.SeekType;
 import org.xbmc.eventclient.ButtonCodes;
 import android.app.Activity;
 import android.content.Context;
@@ -51,6 +52,7 @@ public class VoiceRecognitionController extends ListController  implements INoti
 	private LinkedHashMap<String, String> singleCommandList;
 	private static final String playOptionsCommand = "play"; //TODO move to Strings.xml to allow for localization?
 	private LinkedHashMap<String, String> playOptionsList;
+    private LinkedHashMap<String, String> nowPlayOptionsList;
 	
 	final SharedPreferences prefs;
 
@@ -123,8 +125,11 @@ public class VoiceRecognitionController extends ListController  implements INoti
 		//playOptionsList.put("playlist", "playPlaylist");
 		playOptionsList.put("movie", "playMovie");
 		playOptionsList.put("latest", "playLatest");
-		playOptionsList.put("next", "playNext"); 
-		//	display/goto? (insert show here) / season 
+		playOptionsList.put("next", "playNext");
+		//	display/goto? (insert show here) / season
+
+        nowPlayOptionsList = new LinkedHashMap<String, String>();
+        nowPlayOptionsList.put("seek", "seek");
 		
 		}
 
@@ -136,11 +141,17 @@ public class VoiceRecognitionController extends ListController  implements INoti
 			lMatch = lMatch.toLowerCase(Locale.US).trim();
 			//First check to see if there is just one 'word'
 			String[] matchedWords = lMatch.split(" ");
-			if (matchedWords.length == 1)
-			{
-				//If we found a valid and successful command return, else keep trying
-				if (runSingleCommand(singleCommandList.get(matchedWords[0]))) return true;
-			}
+            if(matchedWords.length > 1 && nowPlayOptionsList.containsKey(matchedWords[0]))
+            {
+                Log.d(TAG, "Play options function: "+ nowPlayOptionsList.get(matchedWords[1]));
+                StringBuilder searchTerm = new StringBuilder();
+                for (int i = 1; i < matchedWords.length; i++)
+                {
+                    searchTerm.append(matchedWords[i]+" ");
+                }
+                //If we found a valid and successful command return, else keep trying
+                if (playWithOptions(nowPlayOptionsList.get(matchedWords[0]), searchTerm.toString().trim(), context)) return true;
+            }
 			//Maybe first word is play
 			else if (matchedWords.length > 1 && playOptionsCommand.equalsIgnoreCase(matchedWords[0]))
 			{
@@ -160,7 +171,9 @@ public class VoiceRecognitionController extends ListController  implements INoti
 			}
 			//Maybe first word is garbage, and second word is actual command>
 			else
-			{	
+			{
+                //If we found a valid and successful command return, else keep trying
+                if (runSingleCommand(singleCommandList.get(matchedWords[0]))) return true;
 				//TODO ditch first 'word' and try again
 			}
 		}
@@ -185,7 +198,7 @@ public class VoiceRecognitionController extends ListController  implements INoti
 		else if (method.equalsIgnoreCase("playPlaylist")) { return runPlayPlaylist(searchTerm, context); }
 		else if (method.equalsIgnoreCase("playLatest")) { return runPlayLatest(searchTerm, context); }
 		else if (method.equalsIgnoreCase("playNext")) { return runPlayNext(searchTerm, context); }
-
+        else if (method.equalsIgnoreCase("seek")) { return runSeek(searchTerm, context); }
 		return false;
 	}
 	
@@ -406,7 +419,38 @@ public class VoiceRecognitionController extends ListController  implements INoti
 		return false;
 	}
 
-	
+    private boolean runSeek(String searchTerm, Context context) {
+        // determine time for seeking
+        String[] matchedWords = searchTerm.split(" ");
+        int time = 0;
+        TimeUnit inputTimeUnit = TimeUnit.seconds;
+        for (int i = 0; i < matchedWords.length; i++)
+        {
+            String word = matchedWords[i];
+            if (word.matches("\\d+?"))
+            {
+                time = Integer.valueOf(word);
+                continue;
+            }
+            inputTimeUnit = TimeUnit.fromString(matchedWords[i]);
+        }
+
+        switch (inputTimeUnit)
+        {
+            case seconds:
+                break;
+            case minutes:
+                time = time * 60;
+                break;
+            case hours:
+                time = time * 3600;
+                break;
+            default:
+                break;
+        }
+        mControlManager.seek(new DataResponse<Boolean>(), SeekType.relative, time, mActivity.getApplicationContext());
+        return true;
+    }
 	
 	@Override
 	public void onContextItemSelected(MenuItem item) {
@@ -434,7 +478,42 @@ public class VoiceRecognitionController extends ListController  implements INoti
 		for (String lString : playOptionsList.keySet()) {
 			instructions.add("play "+lString);
 		}
+
+        //Add the options of the currently playing item
+        for (String lString : nowPlayOptionsList.keySet()) {
+            instructions.add(lString);
+        }
 		return instructions;
 	}
-	
+}
+
+enum TimeUnit
+{
+    hours("hours"),
+    minutes("minutes"),
+    seconds("seconds");
+
+    private String text;
+
+
+    TimeUnit(String text)
+    {
+        this.text = text;
+    }
+
+
+    static TimeUnit fromString(String text)
+    {
+        if (text != null)
+        {
+            for (TimeUnit t: TimeUnit.values())
+            {
+                if (text.equalsIgnoreCase(t.text))
+                {
+                    return t;
+                }
+            }
+        }
+        return seconds;
+    }
 }
